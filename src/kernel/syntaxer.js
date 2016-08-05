@@ -8,39 +8,12 @@
 		'use': {
 
 			'env': function env(){
-
 				return OODKSystem.environment;
 			},
 
 			'envtype': function envtype(){
-
 				return OODKSystem.getEnvType();
 			},
-
-			/*'unicast': function unicast(){
-				OODKEventHandler.trigger.apply(OODKEventHandler, arguments);
-			},
-
-			'outercast': function outercast(type){
-				
-				if(OODKSystem.getEnvType() == 'webworker'){
-					OODKSystem.environment.trigger(type, arguments[1]);
-				}else if(OODKSystem.getEnvType() == 'browser'){
-
-					if(OODKClass.isValid(OODK.foundation.util.Thread)){
-						OODK.foundation.util.Thread.self.triggerAll(type, arguments[1]);
-					}
-				}
-			},
-
-			'broadcast': function broadcast(type){
-				
-				this.unicast.apply(this, arguments);
-
-				this.outercast.apply(this, arguments);
-			},
-
-			'on': OODKEventHandler.on,*/
 
 			'alias': function alias(target, name){
 

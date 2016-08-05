@@ -1707,7 +1707,8 @@ if(typeof window === 'undefined'){
 			'{oodk}/api/Comparison',
 			'{oodk}/api/Sort',
 			'{oodk}/api/Observer',
-			'{oodk}/api/Asynchrone'
+			'{oodk}/api/Asynchrone',
+			'{oodk}/api/Event'
 		]);
 
 		/**

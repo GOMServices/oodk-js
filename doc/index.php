@@ -6471,7 +6471,7 @@
 
           <p>The purpose of the singleton design pattern is to reduce the instantation of a class to a unique instance.</p>
 
-          <p>It is used mainly as optimization to avoid genetaring multiple useless instance.</p>
+          <p>It is used mainly as optimization to avoid generating multiple useless instances.</p>
 
           <pre>
           $.import('{oodk}/api/Cloneable');
