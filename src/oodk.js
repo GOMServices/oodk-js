@@ -1640,26 +1640,26 @@ if(typeof window === 'undefined'){
 
 				OODKImporter.import('{oodk}/lib/json2', '[foundation.exceptions]');
 
-				/*if(OODKSystem.getEnvType() === 'webworker'){
+				if(OODKSystem.getEnvType() === 'webworker'){
 					//web worker
 
-					OODKImporter.import('{oodk}/api/Serialization', '{oodk}/api/Threading', '{oodk}/foundation/utility/ThreadContext');
+					OODKImporter.import('{oodk}/api/Serialization', '{oodk}/api/Event','{oodk}/api/Threading', '{oodk}/foundation/utility/DedicatedThread');
 
-					var ThreadContext = OODKNamespace.getDeclaredClasses(OODK.foundation.util, 'OODK.foundation.util.ThreadContext', true, false);
+					var DedicatedThread = OODKNamespace.getDeclaredClasses(OODK.foundation.util, 'OODK.foundation.util.DedicatedThread', true, false);
 					
-					OODKSystem.environment = OODKClass.instantiate(ThreadContext);
+					OODKSystem.environment = OODKClass.instantiate(DedicatedThread);
 
 				}else if(OODKSystem.getEnvType() === 'browser'){
 					// browser
 					OODKSystem.environment = window;
 
-					window.onload = function(){
+					/*window.onload = function(){
 
 						OODKEventHandler.trigger('ready');
-					};
+					};*/
 				}else{
 					throw 'environment not supported by OODK';
-				}*/
+				}
 
 				OODKKeywords.reset();
 			}else{
@@ -1706,9 +1706,14 @@ if(typeof window === 'undefined'){
 			'{oodk}/api/Typing',
 			'{oodk}/api/Comparison',
 			'{oodk}/api/Sort',
-			'{oodk}/api/Observer',
-			'{oodk}/api/Asynchrone',
-			'{oodk}/api/Event'
+			'{oodk}/api/Event',
+			'{oodk}/api/Threading'
+		]);
+
+		OODKPackager.add('util.ajax', [
+			'{oodk}/foundation/utility/Url',
+			'{oodk}/foundation/utility/XHRequest',
+			'{oodk}/foundation/utility/XHResponse'
 		]);
 
 		/**
@@ -1726,6 +1731,7 @@ if(typeof window === 'undefined'){
 		OODKImporter.addDependency('{oodk}/foundation/exception/NetworkError', '{oodk}/foundation/exception/Error');
 
 		OODKImporter.addDependency('{oodk}/foundation/exception/IllegalAccessException', '{oodk}/foundation/exception/Exception');
+		OODKImporter.addDependency('{oodk}/foundation/exception/IllegalOperationException', '{oodk}/foundation/exception/Exception');
 		OODKImporter.addDependency('{oodk}/foundation/exception/IllegalStateException', '{oodk}/foundation/exception/Exception');
 		OODKImporter.addDependency('{oodk}/foundation/exception/IllegalArgumentException', '{oodk}/foundation/exception/Exception');
 		OODKImporter.addDependency('{oodk}/foundation/exception/ClassCastException', '{oodk}/foundation/exception/Exception');
@@ -1748,6 +1754,7 @@ if(typeof window === 'undefined'){
 			'{oodk}/foundation/exception/ReferenceError',
 			'{oodk}/foundation/exception/NetworkError',
 			'{oodk}/foundation/exception/IllegalAccessException',
+			'{oodk}/foundation/exception/IllegalOperationException',
 			'{oodk}/foundation/exception/IllegalStateException',
 			'{oodk}/foundation/exception/IllegalArgumentException',
 			'{oodk}/foundation/exception/ClassCastException',

@@ -197,10 +197,6 @@
 		 */
 		'destroy': function destroy(obj){
 
-			/*if(typeof obj === 'object' && Object.isFrozen(obj)){
-				OODKSystem.throw(OODK.foundation.IllegalStateException, 'Cannot destroy an object in frozen state');
-			}*/
-
 			if(OODKInstance.isValid(obj)){
 
 				OODKResource.invoke(obj, '__finalize', []);

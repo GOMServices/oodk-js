@@ -28,7 +28,7 @@
 					OODKSyntaxer.use[name] = def;
 				}
 
-				if(!syntaxer.hasOwnProperty(name)){
+				if(syntaxer && !syntaxer.hasOwnProperty(name)){
 					syntaxer[name] = def;
 				}
 			});

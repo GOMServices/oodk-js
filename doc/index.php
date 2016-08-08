@@ -188,8 +188,8 @@
             <li><a href="#doc-keyword-isset">isset</a></li>
             <li><a href="#doc-keyword-log">log</a></li>
             <li><a href="#doc-keyword-new">new</a></li>
-            <li><a href="#doc-keyword-notify">notify</a></li>
-            <li><a href="#doc-keyword-observe">observe</a></li>
+            <li><a href="#doc-keyword-off">off</a></li>
+            <li><a href="#doc-keyword-on">on</a></li>
             <li><a href="#doc-keyword-package">package</a></li>
             <li><a href="#doc-keyword-release">release</a></li>
             <li><a href="#doc-keyword-serialize">serialize</a></li>
@@ -208,8 +208,8 @@
             <li><a href="#doc-keyword-toString">toString</a></li>
             <li><a href="#doc-keyword-toTrue">toTrue</a></li>
             <li><a href="#doc-keyword-trace">trace</a></li>
+            <li><a href="#doc-keyword-trigger">trigger</a></li>
             <li><a href="#doc-keyword-unserialize">unserialize</a></li>
-            <li><a href="#doc-keyword-unobserve">unobserve</a></li>
             <li><a href="#doc-keyword-watch">watch</a></li>
 
           </ul>
@@ -219,8 +219,8 @@
             <li><a href="#api-comparison">Comparison</a></li>
             <li><a href="#api-conversion">Conversion</a></li>
             <li><a href="#api-debugger">Debugger</a></li>
+            <li><a href="#api-event">Event</a></li>
             <li><a href="#api-iteration">Iteration</a></li>
-            <li><a href="#api-observer">Observer</a></li>
             <li><a href="#api-reflection">Reflection</a></li>
             <li><a href="#api-serialization">Serialization</a></li>
             <li><a href="#api-sort">Sort</a></li>
@@ -288,8 +288,8 @@
           </ul>
 
           <ul id="menu-design-pattern" class="nav nav-sidebar hidden">
+            <li><a href="#design-pattern-event-behavior">Event-behavior</a></li>
             <li><a href="#design-pattern-factory">Factory</a></li>
-            <li><a href="#design-pattern-observer">Observer</a></li>
             <li><a href="#design-pattern-proxy">Proxy</a></li>
             <li><a href="#design-pattern-singleton">Singleton</a></li>
           </ul>
@@ -303,7 +303,7 @@
 
           <p>OODK-JS, <b>O</b>riented-<b>O</b>bject <b>D</b>evelopment <b>K</b>it for <b>J</b>ava<b>S</b>cript is a all-in-one JavaScript library, that enriched JavaScript with all of the OOP concepts: <b>encapsulation</b>, <b>inheritance</b>, <b>overriding</b>, <b>polymorphism</b>, <b>interface</b>, <b>abstraction</b>, <b>namespace</b>.</p>
 
-          <p>Additional API are also available working around OOP: <a href="#api-conversion">conversion</a>, <a href="#api-cloning">cloning</a>, <a href="#api-serialization">serialization</a>, <a href="#api-iteration">iteration</a>, <a href="#api-debugger">debugger</a>, <a href="#api-reflection">reflection</a>, <a href="#api-comparison">comparison</a>, <a href="#api-sort">sort</a>, <a href="#api-observer">observer</a></p>
+          <p>Additional API are also available working around OOP: <a href="#api-conversion">conversion</a>, <a href="#api-cloning">cloning</a>, <a href="#api-serialization">serialization</a>, <a href="#api-iteration">iteration</a>, <a href="#api-debugger">debugger</a>, <a href="#api-reflection">reflection</a>, <a href="#api-comparison">comparison</a>, <a href="#api-sort">sort</a>, <a href="#api-event">event</a></p>
 
           <p>The purpose of OODK-JS is to bring to JavaScript additional pseudo-keywords to create classes, interfaces and namespaces without to install a separate compiler and learn a new language.</p>
 
@@ -1858,16 +1858,50 @@
           $.log(a.getA()); // raise a OODK.foundation.TypeError as method getA is of type literal and return "test"
           </pre>
 
-          <a name="doc-keyword-trace"></a>
-          <h4 class="sub-header">trace <i class="font-small">(&nbsp;<font class="oodk-type">String</font>&nbsp;<b>msg</b>&nbsp;)</i></h4>
+          <a name="doc-keyword-off"></a>
+          <h4 class="sub-header">off <i class="font-small">(&nbsp;<font class="oodk-type">OODK.foundation.EventUnicaster | OODK.foundation.EventBroadcaster</font>&nbsp;<b>target</b>,&nbsp;&nbsp;<font class="oodk-type">String</font>&nbsp;<b>eventType</b>&nbsp;,&nbsp;<font class="oodk-type">OODK.founation.EventListener</font>&nbsp;<b>listener</b>&nbsp;)</i></h4>
 
           <p><b>scope(s)</b>: <i>any</i></p>
 
-          <p><b>API</b>: <a href="#api-debugger">Debugger</a></p>
+          <p><b>API</b>: <a href="#api-event">Event</a></p>
 
-          <p>Displays the <a href="#concept-stack">OODK stack</a> traces in the console.</p>
+          <p>Remove the listener for the specify target and given event.</p>
 
-          <p>Traces are displays until the <a href="#doc-keyword-snooze">snooze</a> keyword is called.</p>
+          <p>Different combinations of arguments are possibles:</p>
+
+          <p>Remove all listeners for the specified target.</p>
+
+          <p><i class="font-small">(&nbsp;<font class="oodk-type">OODK.foundation.EventUnicaster | OODK.foundation.EventBroadcaster</font>&nbsp;<b>target</b>&nbsp;,&nbsp;<font class="oodk-type">OODK.founation.EventListener</font>&nbsp;<b>listener</b>&nbsp;)</i></p>
+
+          <p>Remove all listeners for the specified eventType.</p>
+
+          <p><i class="font-small">(&nbsp;<font class="oodk-type">String</font>&nbsp;<b>eventType</b>&nbsp;)</i></p>
+
+          <p>Remove the listener for the specified eventType.</p>
+
+          <p><i class="font-small">(&nbsp;<font class="oodk-type">OODK.foundation.EventListener</font>&nbsp;<b>listener</b>&nbsp;,&nbsp;<font class="oodk-type">String</font>&nbsp;<b>eventType</b>&nbsp;)</i></p>
+
+          <p>see section <a href="#design-pattern-event-behavior">Event-behavior design pattern</a>.</p>
+
+          <a name="doc-keyword-on"></a>
+          <h4 class="sub-header">on <i class="font-small">(&nbsp;<font class="oodk-type">Object</font>&nbsp;<b>target</b>,&nbsp;&nbsp;<font class="oodk-type">String</font>&nbsp;<b>eventType</b>&nbsp;,&nbsp;<font class="oodk-type">OODK.founation.EventListener</font>&nbsp;<b>listener</b>&nbsp;)</i></h4>
+
+          <p><b>scope(s)</b>: <i>any</i></p>
+
+          <p><b>API</b>: <a href="#api-event">Event</a></p>
+
+          <p>Bind the listener on the specify target for the given event.</p>
+
+          <p>A different alternative is possible: bind the listener to the given event without specifying a target.</p>
+
+          <p><i class="font-small">(&nbsp;<font class="oodk-type">String</font>&nbsp;<b>eventType</b>&nbsp;,&nbsp;<font class="oodk-type">OODK.founation.EventListener</font>&nbsp;<b>listener</b>&nbsp;)</i></p>
+
+          <p>see section <a href="#design-pattern-event-behavior">Event-behavior design pattern</a>.</p>
+
+          <a name="doc-keyword-trace"></a>
+          <h4 class="sub-header">trace <i class="font-small">(&nbsp;)</i></h4>
+
+          <p>Display each trace of the stack in the console.</p>
 
           <pre>
           $.class(function ClassCalculate($, µ, _){
@@ -1916,6 +1950,27 @@
           // dump ([current]:32)
           // Object {0: 8, 1: 1}
           </pre>
+
+          <a name="doc-keyword-trigger"></a>
+          <h4 class="sub-header">trigger <i class="font-small">(&nbsp;<font class="oodk-type">Object</font>&nbsp;<b>target</b>&nbsp;,&nbsp;<font class="oodk-type">String</font>&nbsp;<b>eventType</b>&nbsp;,&nbsp;[ <font class="oodk-type">Object or primitive</font>&nbsp;<b>data</b>&nbsp;] )</i></h4>
+
+          <p><b>scope(s)</b>: <i>any</i></p>
+
+          <p><b>API</b>: <a href="#api-event">Event</a></p>
+
+          <p>Trigger an event.</p>
+
+          <p>Several combination of arguments are possibles: </p>
+
+          <p>Trigger the event type argument on the target argument passing along optionally custom data argument.</p>
+          
+          <p>(&nbsp;<font class="oodk-type">Object</font>&nbsp;<b>target</b>&nbsp;,&nbsp;<font class="oodk-type">String</font>&nbsp;<b>eventType</b>&nbsp;,&nbsp;[ <font class="oodk-type">Object or primitive</font>&nbsp;<b>data</b>&nbsp;] )</p>
+
+          <p>Trigger the event type argument without specifying a target passing along optionally custom data argument.</p>
+          
+          <p>(&nbsp;<font class="oodk-type">String</font>&nbsp;<b>eventType</b>&nbsp;,&nbsp;[ <font class="oodk-type">Object or primitive</font>&nbsp;<b>data</b>&nbsp; ] )</p>
+
+          <p>see section <a href="#design-pattern-event-behavior">Event-behavior design pattern</a>.</p>
 
           <a name="doc-keyword-sort"></a>
           <h4 class="sub-header">sort <i class="font-small">(&nbsp;<font class="oodk-type">Array | Object</font>&nbsp;<b>obj</b>, [ <font class="oodk-type">&lt; OODK.foundation.Comparator &gt;</font>&nbsp;<b>comparator</b> ]&nbsp;)</i></h4>
@@ -3025,36 +3080,6 @@
           $.log(g.add(v)); // guardian does not identify the kill signature and execute the virus: execute the malware and raise the exception "you are dead"
           </pre>
 
-          <a name="doc-keyword-notify"></a>
-          <h4 class="sub-header">notify <i class="font-small">(&nbsp;&nbsp;<font class="oodk-type">Object</font>&nbsp;<b>observable</b>,&nbsp;&nbsp;<font class="oodk-type">Object | Primitive</font>&nbsp;<b>message</b>,&nbsp;[ <font class="oodk-type">Object</font>&nbsp;<b>observer</b> ] )</i></h4>
-
-          <p><b>scope(s)</b>: <i>namespace</i>, <i>use</i>, <i>instance</i>, <i>static</i></p>
-
-          <p>Notify all observer (or only the one specified as third argument) of the given observable object that states changed has occured.</p>
-
-          <p>Works only on OODK instances.</p>
-
-          <p>The observable object must implements the <a href="#foundation-interface-Observer">Observable</a> interface.</p>
-
-          <p>Argument message can be of any type allowing to customize your own update handler.</p>
-
-          <p>See the section <a href="#design-pattern-observer">design pattern - Observer</a> for a complete example .</p>
-
-          <a name="doc-keyword-observe"></a>
-          <h4 class="sub-header">observe <i class="font-small">(&nbsp;&nbsp;<font class="oodk-type">Object</font>&nbsp;<b>observer</b>,&nbsp;&nbsp;<font class="oodk-type">Object</font>&nbsp;<b>observable</b>&nbsp;)</i></h4>
-
-          <p><b>scope(s)</b>: <i>namespace</i>, <i>use</i>, <i>instance</i>, <i>static</i></p>
-
-          <p>Define an observer for the specified observable object.</p>
-
-          <p>Works only on OODK instances.</p>
-
-          <p>The observer object must implements the <a href="#foundation-interface-Observer">Observer</a> interface and observable object the <a href="#foundation-interface-Observer">Observable</a> interface</p>
-
-          <p>Test as well the unicity, only one observer object is stored for a given observable object.</p>
-
-          <p>See the section <a href="#design-pattern-observer">design pattern - Observer</a> for a complete example .</p>
-          
           <a name="doc-keyword-package"></a>
           <h4 class="sub-header">package <i class="font-small">(&nbsp;&nbsp;<font class="oodk-type">String</font>&nbsp;<b>name</b>,&nbsp;&nbsp;<font class="oodk-type">Array</font>&nbsp;<b>file</b>&nbsp;)</i></h4>
 
@@ -3078,21 +3103,6 @@
 
           $.import('[myProject.full]');
           </pre>
-
-          <a name="doc-keyword-observable"></a>
-          <h4 class="sub-header">private <i class="font-small">(&nbsp;<font class="oodk-type">Function&nbsp;|&nbsp;String</font>&nbsp;<b>name</b>,&nbsp;[&nbsp;<font class="oodk-type">Object | Primitives</font>&nbsp;<b>def</b>&nbsp;]&nbsp;)</i></h4>
-
-          <p><b>scope(s)</b>: <i>instance</i>, <i>static</i></p>
-
-          <p>Declare a property of a class to be observable.</p>
-
-          <p>An observable property notify its observers when its value has changed.</p>
-
-          <p>Use a deep equal to test if value has changed (for example setting 50 to "50" is considered as a state changement and will notify the observers).</p>
-
-          <p>If a change has occured, call the behavior method __notify passing as argument the name of the property, the new value as well as the predecessing value before the change.</p>
-
-          <p>See the section <a href="#design-pattern-observer">design pattern - Observer</a> for a complete example on the keyword usage.</p>
 
           <a name="doc-keyword-private"></a>
           <h4 class="sub-header">private <i class="font-small">(&nbsp;<font class="oodk-type">Function&nbsp;|&nbsp;String</font>&nbsp;<b>name</b>,&nbsp;[&nbsp;<font class="oodk-type">Object | Primitives</font>&nbsp;<b>def</b>&nbsp;]&nbsp;)</i></h4>
@@ -3930,19 +3940,6 @@
           $.log($.toString(a)); // outputs: '3 + 4 = 7', call __to first 
           </pre>
 
-          <a name="doc-keyword-unobserve"></a>
-          <h4 class="sub-header">unobserve <i class="font-small">(&nbsp;&nbsp;<font class="oodk-type">Object</font>&nbsp;<b>observer</b>,&nbsp;&nbsp;<font class="oodk-type">Object</font>&nbsp;<b>observable</b>&nbsp;)</i></h4>
-
-          <p><b>scope(s)</b>: <i>namespace</i>, <i>use</i>, <i>instance</i>, <i>static</i></p>
-
-          <p>Remove an observer for the specified observable object.</p>
-
-          <p>Works only on OODK instances.</p>
-
-          <p>The observer object must implements the <a href="#foundation-interface-Observer">Observer</a> interface and observable object the <a href="#foundation-interface-Observer">Observable</a> interface</p>
-
-          <p>See the section <a href="#design-pattern-observer">design pattern - Observer</a> for a complete example .</p>
-
           <a name="doc-keyword-unserialize"></a>
           <h4 class="sub-header">unserialize <i class="font-small">(&nbsp;<font class="oodk-type">String</font>&nbsp;<b>serial</b>&nbsp;)</i></h4>
 
@@ -4169,6 +4166,30 @@
 
           </div>
 
+          <a name="api-event"></a>
+          <h4 class="page-header">Event</h4>
+
+          <div class="paragraph">
+          
+          <p>The event API provides tools to implements the event-behavior design pattern.</p>
+
+          <p>The API is riched in features and allows to cover a wide range of applications: point to point or broadcast communication , synchrone/asynchrone, propagation by bubbling or capturing, cancelable event.</p>
+
+          <p><b>Keyword(s)</b>: <a href="doc-keyword-off">off</a>, <a href="doc-keyword-on">on</a>, <a href="doc-keyword-trigger">trigger</a></p>
+
+          <p><b>Behavior method(s)</b>: <a href="#behavior-method-__approveListener">__approveListener</a>, <a href="#behavior-method-__dispatchEvent">__dispatchEvent</a>, <a href="#behavior-method-__eventConsumed">__eventConsumed</a>, <a href="#behavior-method-__processEvent">__processEvent</a></p>
+
+          <p><b>Foundation</b></p>
+
+          <ul>
+            <li>interface <a href="#foundation-interface-EventBroadcaster">EventBroadcaster</a></li>
+            <li>interface <a href="#foundation-interface-EventListener">EventListener</a></li>
+            <li>interface <a href="#foundation-interface-EventUnicaster">EventUnicaster</a></li>
+            <li>interface <a href="#foundation-util-Event">Event</a></li>
+          <ul>
+
+          </div>
+
           <a name="api-iteration"></a>
           <h4 class="page-header">Iteration</h4>
 
@@ -4190,26 +4211,6 @@
             <li>class <a href="#foundation-util-Iterator">Iterator</a></li>
             <li>class <a href="#foundation-exception-IterateNotSupportedException">IterateNotSupportedException</a></li>
             <li>class <a href="#foundation-exception-NoSuchElementException">NoSuchElementException</a></li>
-          <ul>
-
-          </div>
-
-          <a name="api-observer"></a>
-          <h4 class="page-header">Observer</h4>
-
-          <div class="paragraph">
-          
-          <p>The observer API provides tools to implements the design pattern Observer.</p>
-
-          <p><b>Keyword(s)</b>: <a href="doc-keyword-observe">observe</a>, <a href="doc-keyword-unobserve">unobserve</a>, <a href="doc-keyword-notify">notify</a></p>
-
-          <p><b>Behavior method(s)</b>: <a href="#behavior-method-__notify">__notify</a></p>
-
-          <p><b>Foundation</b></p>
-
-          <ul>
-            <li>interface <a href="#foundation-interface-Observer">Observer</a></li>
-            <li>interface <a href="#foundation-interface-Observable">Observable</a></li>
           <ul>
 
           </div>
@@ -5684,6 +5685,797 @@
 
           <p>This section details main design patterns that can be implemented using OODK.</p>
 
+          <a name="design-pattern-event-behavior"></a>
+          <h3 class="namespace-header">Event behavior</h3>
+
+          <p>The event behavior design pattern is an object behavioral pattern based on event notification. A publisher communicates a message to one or more subscribers. The message takes the form of an event object.</p>
+
+          <p>With OODK the <a href="#api-event">Event API</a> provides tools to implement this pattern.</p>
+
+          <p>The following example shows a simple implementation of the design pattern. A publisher notify its subscribers when it has finished to complete an action.</p>
+
+          <pre>
+          &lt;!DOCTYPE html&gt;
+          &lt;html&gt;
+          &lt;head&gt;
+
+              &lt;script src="../src/oodk.js"&gt;&lt;/script&gt;
+              &lt;script src="lib/jquery-1.12.0.min.js"&gt;&lt;/script&gt;
+            
+              &lt;script&gt;
+              $.noConflict();
+
+              OODK.config({
+                'path': {
+                  'oodk': '../src',
+                  'workspace': 'workspace'
+                }
+              });
+              
+              OODK(function($, _){
+
+                $.import('{oodk}/api/Event');
+
+                // the publisher implements the EventBroadcaster interface
+                // to communicate with multiple subscribers
+                $.implements(OODK.foundation.EventBroadcaster).class(function Publisher($, µ, _){
+
+                    $.private('max');
+
+                    $.public(function __initialize(max){
+                        _.max = max;
+                    });
+
+                    $.public(function doAction(){
+
+                        // perform the action: loop until the max value is reached
+                        for(var i=0; i&lt;_.max; i++){};
+                        
+                        // trigger the event asynchronously (default behavior)
+                        // by sending the count result as custom data
+                        $.trigger(this, 'actionperformed', i);
+                    });
+
+                    // required by the EventBroadcaster interface
+                    // called after the propagation of the event and the 
+                    // event has not been cancelled by one of the subscribers
+                    $.private(function __eventConsumed(evt){});
+
+                    $.private(function __dispatchEvent(evt){});
+
+                    $.private(function __approveListener(request){});
+                });
+
+                // the subscriber implements the EventListener interface
+                // and the __processEvent behavior method
+                $.implements(OODK.foundation.EventListener).class(function Subscriber($, µ, _){
+
+                  $.private(function __processEvent(evt){
+
+                    // get the count result through the custom data
+                    var count = evt.getData();
+
+                    $.log(count, 'subscriber '+this.__resource+', count result is ');
+                  });
+                });
+
+                // instantiate the publisher
+                var p = $.new(_.Publisher, 10);
+
+                // instantiate a subscriber
+                var s1 = $.new(_.Subscriber);
+
+                // instantiate a second subscriber
+                var s2 = $.new(_.Subscriber);
+
+                // subscriber s1 subscribes to the actionperformed event of publisher p 
+                $.on(p, 'actionperformed', s1);
+
+                // subscriber s2 subscribes to the event whatever the publisher 
+                $.on('actionperformed', s2);
+
+                $.log('performs the action ...');
+
+                p.doAction();
+
+                $.log('and do something');
+
+                // outputs:
+                // performs the action ...
+                // and do something
+                // count result is 10
+                // count result is 10
+
+              });
+
+              &lt;/script&gt;
+          &lt;/head&gt;
+          &lt;body&gt;&lt;/body&gt;
+          &lt;/html&gt;
+          </pre>
+
+          <h4>Event progapation and Point to point communication</h4>
+
+          <p>This second example shows how to propagate (bubbling or capturing, both mode are supported) event through a hierarchy of publishers.</p>
+
+          <p>Requirements of this example are we want to represent a hierachy of folder. When a folder is open, the whole parent hierarachy of this folder have to update their own state to open as well.</p>
+
+          <p>Moreover we want a point to point communication between the folder and its subscriber (only one subscriber is possible for a given publisher).</p>
+
+          <pre>
+          // The Folder class implements the EventUnicaster interface as we 
+          // want only one subscriber possible for each folder
+          $.implements(OODK.foundation.EventUnicaster).class(function Folder($, µ, _){
+
+            $.private('name');
+
+            $.private('state');
+
+            $.private('parent');
+
+            $.public(function __initialize(name, parent){
+                _.name = name;
+                _.parent = parent;
+                _.state = this.self.STATE_CLOSE;
+            });
+
+            $.public(function setState(state){
+                _.state = state;
+            });
+
+             $.public(function getState(){
+                return _.state;
+            });
+
+            $.public(function getParent(){
+                return _.parent;
+            });
+
+            $.public(function getName(){
+                return _.name;
+            });
+
+            // build the hierachy of folders starting from the current instance
+            $.public(function getAncestors(){
+
+                var list = [this];
+
+                var parent = this.getParent();
+
+                while($.isset(parent)){
+
+                    list.push(parent);
+
+                    parent = parent.getParent();
+                }
+
+                return list;
+            });
+
+            // open a folder: propagate event by bubbling, from bottom to top
+            $.public(function openByBubbling(){
+
+                var target = this.getAncestors();
+                
+                var evt = $.new(OODK.foundation.util.Event, 'folderopen', target);
+
+                evt.sync();
+                
+                $.trigger(evt);
+            });
+
+            // open a folder: propagate event by capturing, from top to bottom
+            $.public(function openByCapturing(){
+
+                var target = this.getAncestors();
+
+                var evt = $.new(OODK.foundation.util.Event, 'folderopen', target);
+
+                // define the propagation mode to CAPTURE
+                evt.setPropagationMode(OODK.foundation.util.Event.self.CAPTURE);
+
+                // set the synchronous mode, event is immediatly triggered
+                evt.sync();
+                
+                $.trigger(evt);
+            });
+
+            $.private(function __eventConsumed(evt){
+                $.log('folder ' + _.name + ' and all its hierarchy are now open');
+            });
+
+            $.private(function __dispatchEvent(evt){});
+
+            $.private(function __approveListener(request){});
+
+            $.static(function($, µ, _){
+                
+                $.final().public('STATE_OPEN', 1);
+
+                $.final().public('STATE_CLOSE', 0);
+            });
+          });
+
+          // Listener for a folder
+          $.implements(OODK.foundation.EventListener).class(function FolderListener($, µ, _){
+            
+            $.public(function __processEvent(evt){
+                
+                if(evt.getType() == 'folderopen'){
+                    
+                    if(evt.getCurrentTarget().getState() === _.ns.Folder.self.STATE_OPEN){
+                        // stop propagating the event to the hierarchy
+                        // if the folder open, implicitly all the hierachy is already open
+                        evt.stopPropagation();
+
+                        $.log('folder is already open, stop progation', evt.getCurrentTarget().getName());
+                    }else{
+                        // change the state of the current folder to open
+                        evt.getCurrentTarget().setState(_.ns.Folder.self.STATE_OPEN);
+
+                        $.log('open folder', evt.getCurrentTarget().getName());
+                    }
+                }
+            });
+          });
+
+          // instantiate folders
+          var fldMyDocuments = $.new(_.Folder, "myDocuments");
+
+          var fldMyMedias = $.new(_.Folder, "myMedias", fldMyDocuments);
+
+          var fldMyPictures = $.new(_.Folder, "myPictures", fldMyMedias);
+
+          // instantiate the subscriber
+          var folderListener = $.new(_.FolderListener);
+
+          // subscribe to event 'folderopen'
+          $.on(fldMyDocuments, 'folderopen', folderListener);
+
+          $.on(fldMyMedias, 'folderopen', folderListener);
+
+          $.on(fldMyPictures, 'folderopen', folderListener);
+
+          $.log('open folders, bubbling propagation mode');
+
+          fldMyPictures.openByBubbling();
+
+          // starts from the source and goes up the hierarchy 
+          // outputs: "myPictures", "myMedias", "myDocuments" 
+
+          $.log("reset all state's folders");
+
+          fldMyPictures.setState(_.Folder.self.STATE_CLOSE);
+
+          fldMyMedias.setState(_.Folder.self.STATE_CLOSE);
+
+          fldMyDocuments.setState(_.Folder.self.STATE_CLOSE);
+
+          $.log('open folders, capturing propagation mode');
+
+          fldMyPictures.openByCapturing();
+
+          // starts from the global listener and goes down the hierarchy 
+          // outputs: "myDocuments", "myMedias", "myPictures"
+          </pre>
+
+          <h4>Observer design pattern</h4>
+
+          <p>The observer design pattern is a specific implementation of the event-behavior design pattern.</p>
+
+          <p>The publisher informed its subscribers when one of its property's value has changed.</p>
+
+          <p>The most known application if this pattern is, in the context of an MVC application, when a model change (the observable), related views (the observers) update their display to reflect the change occured in the model.</p>
+
+          <pre>
+          &lt;!DOCTYPE html&gt;
+          &lt;html&gt;
+          &lt;head&gt;
+          &lt;script src="../src/oodk.js"&gt;&lt;/script&gt;
+          &lt;script src="lib/jquery-1.12.0.min.js"&gt;&lt;/script&gt;
+            
+              &lt;script&gt;
+              $.noConflict();
+
+              OODK.config({
+                'path': {
+                  'oodk': '../src',
+                  'workspace': 'workspace'
+                }
+              });
+
+              OODK(function($, _){
+
+                  $.import('{oodk}/api/Event');
+
+                  // declared a custom event to handle property changes
+                  $.extends(OODK.foundation.util.Event).class(function PropertyChangedEvent($, µ, _){
+
+                    $.private('propertyName');
+
+                    $.private('newValue');
+
+                    $.private('oldValue');
+
+                    $.private('observable');
+                    
+                    $.public(function __initialize(propertyName, newValue, oldValue, observable){
+                        
+                        _.propertyName = propertyName;
+
+                        _.newValue = newValue;
+
+                        _.oldValue = oldValue;
+
+                        $.super.__initialize('propertyChanged', observable);
+                    });
+
+                    $.public(function getPropertyName(){
+                        return _.propertyName;
+                    });
+
+                    $.public(function getNewValue(){
+                        return _.newValue;
+                    });
+
+                    $.public(function getOldValue(){
+                        return _.oldValue;
+                    });
+
+                    $.private(function __eventConsumed(evt){});
+
+                    $.private(function __dispatchEvent(evt){});
+
+                    $.private(function __approveListener(request){});
+                  });
+
+                  $.implements(OODK.foundation.EventBroadcaster).class(function Employee($, µ, _){
+
+                      $.private("name");
+
+                      $.private("age");
+
+                      $.private("id");
+
+                      $.public(function __initialize(id){
+                        _.id = id;
+                      });
+
+                      $.public(function setName(name){
+                        _.setProperty('name', name);
+                      });
+
+                      $.public(function setAge(age){
+                        _.setProperty('age', age);
+                      });
+
+                      $.public(function getId(){
+                        return _.id;
+                      });
+
+                      $.private(function setProperty(propertyName, newValue){
+
+                        // first test if the value has changed
+                        var oldValue = _[propertyName];
+
+                        if(oldValue !== newValue){
+                            
+                            //assign the value ...
+                            _[propertyName] = newValue;
+
+                            var evt = $.new(_.ns.PropertyChangedEvent, propertyName, newValue, oldValue, this);
+
+                            // we don't want an observer stop the propagation of the event to others observers
+                            // desactivate the interruptable mode
+                            evt.setInterruptable(false);
+
+                            // .. and notify observers
+                            $.trigger(evt);
+                        }
+                      });
+                  });
+                    
+                  $.implements(OODK.foundation.EventListener).class(function ViewEmployeeSummary($, µ, _){
+
+                      $.private(function __processEvent(evt){
+
+                        // if the view does not exists yet render it
+                        if(jQuery('#view-summary').size() === 0){
+
+                          var tmpl = '&lt;div id="view-summary"&gt;&lt;h4&gt;View Summary - Employee &lt;/h4&gt;';
+
+                          tmpl += '&lt;p&gt;&lt;span class="employee-name"&gt;&lt;/span&gt;: &lt;span class="employee-age"&gt;&lt;/span&gt;&lt;/p&gt;';
+
+                          tmpl += '&lt;/div&gt;';
+                          
+                          jQuery("#employee").append(tmpl);
+                        }
+
+                        // update html tag(s) related to the property
+                        if(evt.getPropertyName() == 'name'){
+                          jQuery('#view-summary .employee-name').text(evt.getNewValue());
+                        }else if(evt.getPropertyName() == 'age'){
+                          jQuery('#view-summary .employee-age').text(evt.getNewValue());
+                        }
+                      });
+                  });
+
+                  // The full view displays all informations of an employee
+                  $.implements(OODK.foundation.EventListener).class(function ViewEmployeeFull($, µ, _){
+
+                      $.private(function __processEvent(evt){
+
+                        // if the view does not exists yet render it
+                        if(jQuery('#view-full').size() === 0){
+
+                          var tmpl = '&lt;div id="view-full"&gt;';
+
+                          tmpl += '&lt;h4&gt;View Full - Employee &lt;span class="employee-name">&lt;/span&gt;&lt;/h4&gt;';
+
+                          tmpl += '&lt;p&gt;Id: ' + evt.getTarget().getId() + '&lt;/p&gt;';
+
+                          tmpl += '&lt;p&gt;name: &lt;span class="employee-name"&gt;&lt;/span&gt;&lt;/p&gt;';
+
+                          tmpl += '&lt;p&gt;age: &lt;span class="employee-age"&gt;&lt;/span&gt;&lt;/p&gt;';
+
+                          tmpl += '&lt;/div&gt;';
+
+                          jQuery("#employee").append(tmpl);
+                        }
+
+                        // update tml tag(s) related to the property
+                        if(evt.getPropertyName() == 'name'){
+                          jQuery('#view-full .employee-name').text(evt.getNewValue());
+                        }else if(evt.getPropertyName() == 'age'){
+                          jQuery('#view-full .employee-age').text(evt.getNewValue());
+                        }
+                      });
+                  });
+
+                  jQuery(document).ready(function(){
+
+                    // instantiate the observable model, employee jack
+                    var employeeJack = $.new(_.Employee, 1);
+
+                    // instantiate the summary view
+                    var viewSummary = $.new(_.ViewEmployeeSummary);
+
+                    // instantiate the full view
+                    var viewFull = $.new(_.ViewEmployeeFull);
+
+                    // bind the model with the summary view 
+                    $.on(employeeJack, 'propertyChanged', viewSummary);
+
+                    // bind the model with the full view 
+                    $.on(employeeJack, 'propertyChanged', viewFull);
+
+                    // at this point all changes made to employee jack are automatically reflected to the summary and full views
+
+                    // set data of employeee jack
+                    employeeJack.setName('jack');
+                    employeeJack.setAge(35);
+
+                    jQuery('#changeEmployeeAge').bind('click', function(evt){
+
+                      // update age of jack
+                      employeeJack.setAge(40);
+                    });
+                  });
+
+               });
+
+               &lt;/script&gt;
+          &lt;/head&gt;
+          &lt;body&gt;
+          
+          &lt;div id="employee"&gt;&lt;/div&gt;
+
+          &lt;p>&lt;button id="changeEmployeeAge"&gt;New age&lt;/button&gt;&lt;/p&gt;
+
+          &lt;/body&gt;
+          &lt;/html&gt;
+          </pre>
+
+          <h4>Observer design pattern - EventAggragator variant</h4>
+
+          <p>An another example of the observer design pattern based on the EventAgregation concept.</p>
+
+          <p>Our model is now a collection of observable items. Views subscribes to the collection instead of subscribing to each observable items. Collection is an EventAgregator, it observes changes its items and notify the views of changes.</p>
+
+          <pre>
+          &lt;!DOCTYPE html&gt;
+          &lt;html&gt;
+          &lt;head&gt;
+          &lt;script src="../src/oodk.js"&gt;&lt;/script&gt;
+          &lt;script src="lib/jquery-1.12.0.min.js"&gt;&lt;/script&gt;
+            
+              &lt;script&gt;
+              $.noConflict();
+
+              OODK.config({
+                'path': {
+                  'oodk': '../src',
+                  'workspace': 'workspace'
+                }
+              });
+
+              OODK(function($, _){
+
+                $.import('{oodk}/api/Event');
+
+                $.extends(OODK.foundation.util.Event).class(function MutableEvent($, µ, _){
+
+                    $.private('model');
+                    
+                    $.public(function __initialize(type, model, observable){
+
+                        _.model = model;
+                        
+                        $.super.__initialize(type, observable);
+                    });
+
+                    $.public(function getModel(){
+                        return _.model;
+                    });
+                });
+
+                $.implements(OODK.foundation.EventBroadcaster).class(function Employee($, µ, _){
+
+                    $.private("name");
+
+                    $.private("age");
+
+                    $.private("id");
+
+                    $.public(function __initialize(id){
+                        _.id = id;
+                    });
+
+                    $.public(function setName(name){
+                        _.setProperty('name', name);
+                    });
+
+                    $.public(function getName(){
+                        return _.name;
+                    });
+
+                    $.public(function setAge(age){
+                        _.setProperty('age', age);
+                    });
+
+                    $.public(function getAge(){
+                        return _.age;
+                    });
+
+                    $.public(function getId(){
+                        return _.id;
+                    });
+
+                    $.private(function setProperty(propertyName, newValue){
+
+                        var oldValue = _[propertyName];
+
+                        if(oldValue !== newValue){
+                            
+                            _[propertyName] = newValue;
+
+                            var evt = $.new(_.ns.PropertyChangedEvent, propertyName, newValue, oldValue, this);
+
+                            evt.setInterruptable(false);
+
+                            $.trigger(evt);
+                        }
+                    });
+
+                    $.private(function __eventConsumed(evt){});
+
+                    $.private(function __dispatchEvent(evt){});
+
+                    $.private(function __approveListener(request){});
+                });
+              
+
+                // The collection, implements both EventBroadcaster, to notify views of changes 
+                // and EventListener to listen changes from items
+                $.dynamic().implements(OODK.foundation.EventBroadcaster, OODK.foundation.EventListener).class(function CollectionEmployees($, µ, _){
+
+                  // add a model to the collection
+                  $.public(function add(model){
+
+                    var key = model.getId();
+
+                    // test if the model is not already stored in the collection
+                    if(!_.hasOwnProperty(key)){
+
+                        // assign the model to the private context using the key passed as argument
+                        _[key] = model;
+
+                        // listen changes made on the item
+                        $.on(model, 'propertyChanged', this);
+
+                        var evt = $.new(_.ns.MutableEvent, 'itemAdded', model, this);
+
+                        $.trigger(evt);
+                    }
+                  });
+
+                  // remove a model from the collection
+                  $.public(function remove(model){
+
+                    var key = model.getId();
+
+                    // test if the model exists in the collection
+                    if(_.hasOwnProperty(key)){
+
+                        delete _[key];
+
+                        var evt = $.new(_.ns.MutableEvent, 'itemRemoved', model, this);
+
+                        $.trigger(evt);
+                    }
+                  });
+
+                  // intercept the propertyChanged triggered by the observable item and 
+                  // broadcast a new event MutableEvent to views
+                  $.public(function __processEvent(evt){
+
+                    var evtProxy = $.new(_.ns.MutableEvent, 'propertyChanged', evt.getTarget(), this);
+
+                    evtProxy.setInterruptable(false);
+
+                    evtProxy.setSrcEvent(evt);
+
+                    $.trigger(evtProxy);
+                  });
+
+                  $.private(function __eventConsumed(evt){});
+
+                  $.private(function __dispatchEvent(evt){});
+
+                  $.private(function __approveListener(request){});
+                });
+
+                // The list view displays the employees as a html table
+                $.implements(OODK.foundation.EventListener).class(function ViewEmployeeList($, µ, _){
+
+                    // called when an imte is added, removed, or one of the property of the stored model changed
+                    $.private(function __processEvent(evt){
+
+                        var tmpl;
+
+                        // if the view does not exists yet render it
+                        if(jQuery('#view-list').size() === 0){
+
+                          tmpl = '&lt;div id="view-list"&gt;';
+
+                          tmpl += '&lt;h4&gt;View List - Employees&lt;/h4&gt;';
+
+                          tmpl += '&lt;table&gt;';
+
+                          tmpl += '&lt;thead&gt;';
+
+                          tmpl += '&lt;tr&gt;&lt;th&gt;Name&lt;/th&gt;&lt;th&gt;Age&lt;/th&gt;&lt;/tr&gt;';
+
+                          tmpl += '&lt;/thead&gt;';
+
+                          tmpl += '&lt;tbody&gt;&lt;/tbody&gt;';
+
+                          tmpl += '&lt;/table&gt;';
+
+                          tmpl += '&lt;/div&gt;';
+
+                          jQuery("#employee").append(tmpl);
+                        }
+
+                        if(evt.getType() === 'propertyChanged'){
+                            
+                            if(evt.getSrcEvent().getPropertyName() === 'name'){
+
+                                jQuery('#employee-'+evt.getModel().getId()+ ' > .employee-name').text(evt.getSrcEvent().getNewValue());
+                            
+                            }else if(evt.getSrcEvent().getPropertyName() === 'age'){
+
+                                jQuery('#employee-'+evt.getModel().getId()+ ' > .employee-age').text(evt.getSrcEvent().getNewValue());
+                            
+                            }
+                        }else if(evt.getType() === 'itemAdded'){
+
+                            // a new model employee is added
+                            // add a line to the html table
+
+                            tmpl = '&lt;tr id="employee-' + evt.getModel().getId() + '"&gt;';
+
+                            tmpl += '&lt;td class="employee-name"&gt;' + evt.getModel().getName() + '&lt;/td&gt;';
+
+                            tmpl += '&lt;td class="employee-age"&gt;' + evt.getModel().getAge() + '&lt;/td&gt;';
+
+                            tmpl += '&lt;/tr&gt;';
+
+                            jQuery("#view-list > table > tbody").append(tmpl);
+
+                        }if(evt.getType() === 'itemRemoved'){
+                            
+                            // an exsiting model employee is removed from the collection
+                            // delete the corresponding line of the html table
+
+                            jQuery('#employee-'+evt.getModel().getId()).remove();
+                        }
+                    });
+                });
+
+                jQuery(document).ready(function(){
+
+                    // instantiate the observable model, employee jack
+                    var employeeJack = $.new(_.Employee, 1);
+
+                    // instantiate the observable model, employee jack
+                    var employeeAnna = $.new(_.Employee, 2);
+
+                    // instantiate the observable model, employee jack
+                    var employeePaul = $.new(_.Employee, 3);
+
+                    // instantiate the collection
+                    var employeeList = $.new(_.CollectionEmployees);
+
+                    // instantiate the list view
+                    var viewList = $.new(_.ViewEmployeeList);
+
+                    // bind the collection with the view on all possible events
+                    $.on(employeeList, 'itemAdded', viewList);
+
+                    $.on(employeeList, 'itemRemoved', viewList);
+
+                    $.on(employeeList, 'propertyChanged', viewList);
+
+                    employeeList.add(employeeJack);
+                    employeeList.add(employeeAnna);
+                    employeeList.add(employeePaul);
+
+                    employeeJack.setName('Jack');
+                    employeeJack.setAge(30);
+
+                    employeeAnna.setName('Anna');
+                    employeeAnna.setAge(25);
+
+                    employeePaul.setName('Paul');
+                    employeePaul.setAge(40);
+
+                    jQuery('#changeEmployeeAnnaAge').bind('click', function(evt){
+                        employeeAnna.setAge(26);
+                    });
+
+                    jQuery('#addEmployeeRobert').bind('click', function(evt){
+                        
+                        var employeeRobert = $.new(_.Employee, 4);
+
+                        employeeList.add(employeeRobert);
+
+                        employeeRobert.setName('Robert');
+                        employeeRobert.setAge(32);
+                    });
+
+                    jQuery('#removeEmployeePaul').bind('click', function(evt){
+                        employeeList.remove(employeePaul);
+                    });
+                });
+                
+               });
+               &lt;/script&gt;
+          &lt;/head&gt;
+          &lt;body&gt;
+          
+          &lt;div id="employee"&gt;&lt;/div&gt;
+
+          &lt;p&gt;
+            &lt;button id="changeEmployeeAnnaAge"&gt;New age for Anna&lt;/button&gt;&lt;br/&gt;
+            &lt;button id="addEmployeeRobert"&gt;Add employee Robert&lt;/button&gt;&lt;br/&gt;
+            &lt;button id="removeEmployeePaul"&gt;Remove employee Paul&lt;/button&gt;
+          &lt;/p&gt;
+
+          &lt;/body&gt;
+          &lt;/html&gt;
+          </pre>
+
           <a name="design-pattern-factory"></a>
           <h3 class="namespace-header">Factory</h3>
 
@@ -5797,456 +6589,7 @@
             });
           });
           </pre>
-
-          <a name="design-pattern-observer"></a>
-          <h3 class="namespace-header">Observer</h3>
-
-          <p>The observer design pattern define a relation between an object, the observable, and one to many different objects, the observers, in a way that when a change occured on the states of the observable, observers are automatically be notified and can act occordingly to reflect this changes.</p>
-
-          <p>The most known example is, in the context of an MVC application, when a model change (the observable), related views (the observers) update their display to reflect the change occured in the model.</p>
-
-          <p>The Observer API has been designed specifically for this purpose andthe following examples show how to implement this use case.</p>
-
-          <pre>
-          &lt;!DOCTYPE html&gt;
-          &lt;html&gt;
-          &lt;head&gt;
-          &lt;script src="../src/oodk.js"&gt;&lt;/script&gt;
-          &lt;script src="lib/jquery-1.12.0.min.js"&gt;&lt;/script&gt;
-            
-              &lt;script&gt;
-              $.noConflict();
-
-              OODK.config({
-                'path': {
-                  'oodk': '../src',
-                  'workspace': 'workspace'
-                }
-              });
-
-              OODK(function($, _){
-
-                  $.import('{oodk}/api/Observer');
-
-                  // The model of our application: an employee has an id which not been changed once defined, a name and an age
-                  // must implements the Observable interface and the related __notify method 
-                  $.implements(OODK.foundation.Observable).class(function Employee($, µ, _){
-
-                      // declared employee's name to be observable 
-                      $.observable().private("name");
-
-                      // declared employee's age to be observable 
-                      $.observable().private("age");
-
-                      // the employee's id is not going to change once define, we don't need to observe changes on it
-                      $.private("id");
-
-                      $.public(function __initialize(id){
-                        _.id = id;
-                      });
-
-                      $.public(function setName(name){
-                        _.name = name;
-                      });
-
-                      $.public(function setAge(age){
-                        _.age = age;
-                      });
-
-                      $.public(function getId(){
-                        return _.id;
-                      });
-
-                      // __notify is called after one of the obersvable properties (name or age) as changed
-                      // provides as argument the name of the property, the new value as well as the value before the change
-                      $.private(function __notify(propertyName, newValue, oldValue){
-
-                        // we define a custom message to send the observers ...
-                        var message = {'propertyName': propertyName, 'newValue': newValue, 'oldValue': oldValue};
-
-                        // ... and notify them
-                        $.notify(this, message);
-                      });
-                  });
-                    
-                  // The summary view displays only the name and age of an employee
-                  // must implements the Observer interface and the related update method
-                  $.implements(OODK.foundation.Observer).class(function ViewEmployeeSummary($, µ, _){
-
-                      // the update method is called by the notify keyword
-                      $.private(function update(observable, message){
-
-                        // if the view does not exists yet render it
-                        if(jQuery('#view-summary').size() === 0){
-
-                          var tmpl = '&lt;div id="view-summary"&gt;&lt;h4&gt;View Summary - Employee &lt;/h4&gt;';
-
-                          tmpl += '&lt;p&gt;&lt;span class="employee-name"&gt;&lt;/span&gt;: &lt;span class="employee-age"&gt;&lt;/span&gt;&lt;/p&gt;';
-
-                          tmpl += '&lt;/div&gt;';
-                          
-                          jQuery("#employee").append(tmpl);
-                        }
-
-                        // update tml tag(s) related to the property
-                        if(message.propertyName == 'name'){
-                          jQuery('#view-summary .employee-name').text(message.newValue);
-                        }else if(message.propertyName == 'age'){
-                          jQuery('#view-summary .employee-age').text(message.newValue);
-                        }
-                      });
-                  });
-
-                  // The full view displays all informations of an employee
-                  $.implements(OODK.foundation.Observer).class(function ViewEmployeeFull($, µ, _){
-
-                      // the update method is called by the notify keyword
-                      $.private(function update(observable, message){
-
-                        // if the view does not exists yet render it
-                        if(jQuery('#view-full').size() === 0){
-
-                          var tmpl = '&lt;div id="view-full"&gt;';
-
-                          tmpl += '&lt;h4&gt;View Full - Employee &lt;span class="employee-name">&lt;/span&gt;&lt;/h4&gt;';
-
-                          tmpl += '&lt;p&gt;Id: ' + observable.getId() + '&lt;/p&gt;';
-
-                          tmpl += '&lt;p&gt;name: &lt;span class="employee-name"&gt;&lt;/span&gt;&lt;/p&gt;';
-
-                          tmpl += '&lt;p&gt;age: &lt;span class="employee-age"&gt;&lt;/span&gt;&lt;/p&gt;';
-
-                          tmpl += '&lt;/div&gt;';
-
-                          jQuery("#employee").append(tmpl);
-                        }
-
-                        // update tml tag(s) related to the property
-                        if(message.propertyName == 'name'){
-                          jQuery('#view-full .employee-name').text(message.newValue);
-                        }else if(message.propertyName == 'age'){
-                          jQuery('#view-full .employee-age').text(message.newValue);
-                        }
-                      });
-                  });
-
-                  jQuery(document).ready(function(){
-
-                    // instantiate the observable model, employee jack
-                    var employeeJack = $.new(_.Employee, 1);
-
-                    // instantiate the summary view
-                    var viewSummary = $.new(_.ViewEmployeeSummary);
-
-                    // instantiate the full view
-                    var viewFull = $.new(_.ViewEmployeeFull);
-
-                    // bind the model with the summary view 
-                    $.observe(viewSummary, employeeJack);
-
-                    // bind the model with the full view 
-                    $.observe(viewFull, employeeJack);
-
-                    // at this point all changes made to employee jack are automatically reflected to the summary and full views
-
-                    // set data of employeee jack
-                    employeeJack.setName('jack');
-                    employeeJack.setAge(35);
-
-                    jQuery('#changeEmployeeAge').bind('click', function(evt){
-
-                      // update age of jack
-                      employeeJack.setAge(40);
-                    });
-
-                    jQuery('#changeEmployeeName').bind('click', function(evt){
-
-                      // update name of jack
-                      employeeJack.setName("paul");
-                    });
-                  });
-
-               });
-
-               &lt;/script&gt;
-          &lt;/head&gt;
-          &lt;body&gt;
           
-          &lt;div id="employee"&gt;&lt;/div&gt;
-
-          &lt;p>&lt;button id="changeEmployeeAge"&gt;New age&lt;/button&gt;&lt;/p&gt;
-
-          &lt;/body&gt;
-          &lt;/html&gt;
-          </pre>
-
-          <p>This second example show hows to implements the Observer design pattern on <a href="#doc-keyord-dynamic">dynamic</a> classes.</p>
-
-          <p><a href="#doc-keyord-dynamic">Dynamic</a> and <a href="#doc-keyord-mutable">mutable</a> classes does not have to declared their properties as the <a href="#doc-keyord-observable">observable</a> keyword cannot be used in this case.</p>
-
-          <p>Requirements of this example are to implement a collection to handle a set of model.</p>
-
-          <p>The collection should notify its obervers when a model is added or removed as well as one of the observable property's model changed.</p>
-
-          <pre>
-          &lt;!DOCTYPE html&gt;
-          &lt;html&gt;
-          &lt;head&gt;
-
-              &lt;script src="../src/oodk.js"&gt;&lt;/script&gt;
-              &lt;script src="lib/jquery-1.12.0.min.js"&gt;&lt;/script&gt;
-            
-              &lt;script&gt;
-              $.noConflict();
-
-              OODK.config({
-                'path': {
-                  'oodk': '../src',
-                  'workspace': 'workspace'
-                }
-              });
-
-              OODK(function($, _){
-
-                $.import('{oodk}/api/Observer', '{oodk}/api/Typing');
-
-                $.implements(OODK.foundation.Observable).class(function Employee($, µ, _){
-
-                    $.observable().private("name");
-
-                    $.observable().private("age");
-
-                    $.private("id");
-
-                    $.public(function __initialize(id){
-                        _.id = id;
-                    });
-
-                    $.args(String).public(function setName(name){
-                        _.name = name;
-                    });
-
-                    $.string().public(function getName(){
-                        return _.name;
-                    });
-
-                    $.args(OODK.int).public(function setAge(age){
-                        _.age = age;
-                    });
-
-                    $.int().public(function getAge(){
-                        return _.age;
-                    });
-
-                    $.int().public(function getId(){
-                        return _.id;
-                    });
-
-                    $.private(function __notify(key, newValue, oldValue){
-
-                        var message = {'propertyName': key, 'newValue': newValue, 'oldValue': oldValue};
-
-                        $.notify(this, message);
-                    });
-                });
-              
-
-                // The CollectionEmployees implements the observable interface a swell as the obersver interface as we want the
-                // collection to be able to forward changes made on one of its model to ist observers
-                // Thanks to this architecture, observers oberve only one instance, the collection class for all changes made
-                // on the collection or on one of its stored model.   
-                $.dynamic().implements(OODK.foundation.Observer, OODK.foundation.Observable).class(function CollectionEmployees($, µ, _){
-
-                  // add a model to the collection
-                  $.args(_.ns.Employee).public(function add(model){
-
-                    var key = model.getId();
-
-                    // test if the model is not already stored in the collection
-                    if(!_.hasOwnProperty(key)){
-
-                        // assign the model to the private context using the key passed as argument
-                        _[key] = model;
-
-                        // call manually the behavior method __notify passing an extra eventName, in this case itemAdded
-                        // to identify easily the nature of the message
-                        _.__notify(key, model, undefined, 'itemAdded');
-
-                        // observe the model to forward notifications to its own observers
-                        // when one of the observable properties of the model change.
-                        $.observe(this, model);
-                    }
-                  });
-
-                  // remove a model from the collection
-                  $.args(_.ns.Employee).public(function remove(model){
-
-                    var key = model.getId();
-
-                    // test if the model exists in the collection
-                    if(_.hasOwnProperty(key)){
-
-                        delete _[key];
-
-                        // call manually the behavior method __notify passing an extra parameter 'itemRemoved'
-                        _.__notify(key, undefined, model, 'itemRemoved');
-                    }
-                  });
-
-                  // notify observers
-                  $.private(function __notify(key, newModel, oldModel, eventName){
-
-                    var message = {'property': key, 'newModel': newModel, 'oldModel': oldModel, 'eventName': eventName};
-
-                    $.notify(this, message);
-                  });
-
-                  // serve as a proxy method to forward changes occured on one 
-                  // of the observable properties of one of the stored model
-                  $.public(function update(observable, message){
-
-                    message.model = observable;
-
-                    message.eventName = 'propertyChanged';
-
-                    // broadcast notifications to its own list of observers
-                    $.notify(this, message);
-                  });
-                });
-
-                // The list view displays the employees as a html table
-                $.implements(OODK.foundation.Observer).class(function ViewEmployeeList($, µ, _){
-
-                    // called when an imte is added, removed, or one of the property of the stored model changed
-                    $.private(function update(observable, message){
-
-                        var tmpl;
-
-                        // if the view does not exists yet render it
-                        if(jQuery('#view-list').size() === 0){
-
-                          tmpl = '&lt;div id="view-list"&gt;';
-
-                          tmpl += '&lt;h4&gt;View List - Employees&lt;/h4&gt;';
-
-                          tmpl += '&lt;table&gt;';
-
-                          tmpl += '&lt;thead&gt;';
-
-                          tmpl += '&lt;tr&gt;&lt;th&gt;Name&lt;/th&gt;&lt;th&gt;Age&lt;/th&gt;&lt;/tr&gt;';
-
-                          tmpl += '&lt;/thead&gt;';
-
-                          tmpl += '&lt;tbody&gt;&lt;/tbody&gt;';
-
-                          tmpl += '&lt;/table&gt;';
-
-                          tmpl += '&lt;/div&gt;';
-
-                          jQuery("#employee").append(tmpl);
-                        }
-
-                        if(message.eventName === 'propertyChanged'){
-                            // one of the observable properties of the model as changed
-                            // reflect this change to the table
-                            if(message.propertyName === 'name'){
-                                jQuery('#employee-'+message.model.getId()+ ' > .employee-name').text(message.newValue);
-                            }else if(message.propertyName === 'age'){
-                                jQuery('#employee-'+message.model.getId()+ ' > .employee-age').text(message.newValue);
-                            }
-                        }else if(message.eventName === 'itemAdded'){
-
-                            // a new model employee is added
-                            // add a line to the html table
-
-                            tmpl = '&lt;tr id="employee-' + message.newModel.getId() + '"&gt;';
-
-                            tmpl += '&lt;td class="employee-name"&gt;' + message.newModel.getName() + '&lt;/td&gt;';
-
-                            tmpl += '&lt;td class="employee-age"&gt;' + message.newModel.getAge() + '&lt;/td&gt;';
-
-                            tmpl += '&lt;/tr&gt;';
-
-                            jQuery("#view-list > table > tbody").append(tmpl);
-
-                        }if(message.eventName === 'itemRemoved'){
-                            
-                            // an exsiting model employee is removed from the collection
-                            // delete the corresponding line of the html table
-
-                            jQuery('#employee-'+message.oldModel.getId()).remove();
-                        }
-                    });
-                });
-
-                jQuery(document).ready(function(){
-
-                    // instantiate the observable model, employee jack
-                    var employeeJack = $.new(_.Employee, 1);
-
-                    // instantiate the observable model, employee jack
-                    var employeeAnna = $.new(_.Employee, 2);
-
-                    // instantiate the observable model, employee jack
-                    var employeePaul = $.new(_.Employee, 3);
-
-                    // instantiate the collection
-                    var employeeList = $.new(_.CollectionEmployees);
-
-                    // instantiate the list view
-                    var viewList = $.new(_.ViewEmployeeList);
-
-                    // bind the model with the view 
-                    $.observe(viewList, employeeList);
-
-                    employeeList.add(employeeJack);
-                    employeeList.add(employeeAnna);
-                    employeeList.add(employeePaul);
-
-                    employeeJack.setName('Jack');
-                    employeeJack.setAge(30);
-
-                    employeeAnna.setName('Anna');
-                    employeeAnna.setAge(25);
-
-                    employeePaul.setName('Paul');
-                    employeePaul.setAge(40);
-
-                    jQuery('#changeEmployeeAnnaAge').bind('click', function(evt){
-                        employeeAnna.setAge(26);
-                    });
-
-                    jQuery('#addEmployeeRobert').bind('click', function(evt){
-                        
-                        var employeeRobert = $.new(_.Employee, 4);
-
-                        employeeList.add(employeeRobert);
-
-                        employeeRobert.setName('Robert');
-                        employeeRobert.setAge(32);
-                    });
-
-                    jQuery('#removeEmployeePaul').bind('click', function(evt){
-                        employeeList.remove(employeePaul);
-                    });
-                });
-                
-               });
-               &lt;/script&gt;
-          &lt;/head&gt;
-          &lt;body&gt;
-          
-          &lt;div id="employee"&gt;&lt;/div&gt;
-
-          &lt;p&gt;
-            &lt;button id="changeEmployeeAnnaAge"&gt;New age for Anna&lt;/button&gt;&gt;br/&gt;
-            &lt;button id="addEmployeeRobert"&gt;Add employee Robert&lt;/button&gt;&gt;br/&gt;
-            &lt;button id="removeEmployeePaul"&gt;Remove employee Paul&lt;/button&gt;
-          &lt;/p&gt;
-
-          &lt;/body&gt;
-          &lt;/html&gt;
-          </pre>
 
           <a name="design-pattern-proxy"></a>
           <h3 class="namespace-header">Proxy</h3>

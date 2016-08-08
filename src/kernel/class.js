@@ -741,7 +741,7 @@
 			'syntaxerFactory': function syntaxerFactory(instance, protectedContext, privateContext, constructor, structure, namespace){
 
 				//here we implements the define, public, protected methods to benefit the context var scope
-				function declareMember(name, def, protected, private, final, abstract, transient, proxy, returnType, argsType, observable, async){
+				function declareMember(name, def, protected, private, final, abstract, transient, proxy, returnType, argsType){
 
 					if(typeof name === 'function'){
 		    			def = name;
@@ -785,7 +785,7 @@
 						}
 					}
 
-		    		OODKClassMember.factory(constructor, structure, name, def, ((private===true)? 'private': (protected === true)? 'protected': (abstract === false)? 'public': ''), false, final, abstract, transient, proxy, returnType, argsType, observable, async);
+		    		OODKClassMember.factory(constructor, structure, name, def, ((private===true)? 'private': (protected === true)? 'protected': (abstract === false)? 'public': ''), false, final, abstract, transient, proxy, returnType, argsType);
 		    		
 		    	}
 
@@ -799,13 +799,11 @@
 		    			// member declaration
 			    		var final = this.__final;
 			    		var transient = this.__transient;
-			    		var def = declareMember(name, def, false, true, final, false, transient, this.__proxy, this.__returnType, this.__args, this.__observable, this.__async);
+			    		var def = declareMember(name, def, false, true, final, false, transient, this.__proxy, this.__returnType, this.__args);
 			    		this.__final = false;
 			    		this.__transient = false;
 			    		this.__proxy = false;
 			    		this.__args = false;
-			    		this.__observable = false;
-			    		this.__async = false;
 			    	}
 		    	}
 
@@ -813,14 +811,12 @@
 
 		    		var final = this.__final;
 		    		var transient = this.__transient;
-		    		var def = declareMember(name, def, false, false, final, false, transient, this.__proxy, this.__returnType, this.__args, this.__observable, this.__async);
+		    		var def = declareMember(name, def, false, false, final, false, transient, this.__proxy, this.__returnType, this.__args);
 		    		this.__final = false;
 		    		this.__transient = false;
 		    		this.__proxy = false;
 		    		this.__returnType = false;
 		    		this.__args = false;
-		    		this.__observable = false;
-		    		this.__async = false;
 		    	}
 
 		    	function protected(name, def){
@@ -831,7 +827,7 @@
 		    		}else{
 			    		var final = this.__final;
 			    		var transient = this.__transient;
-			    		var def = declareMember(name, def, true, false, final, false, transient, this.__proxy, this.__returnType, this.__args, this.__observable, this.__async);
+			    		var def = declareMember(name, def, true, false, final, false, transient, this.__proxy, this.__returnType, this.__args);
 			    		this.__final = false;
 			    		this.__transient = false;
 			    		this.__proxy = false;
@@ -862,8 +858,6 @@
 		    		'__proxy': false,
 		    		'__returnType': false,
 		    		'__args': false,
-		    		'__observable': false,
-		    		'__async': false,
 
 		    		'private': private,
 		    		'protected': protected,
@@ -883,7 +877,7 @@
 		    		},
 		    		'static': function static(fn){
 
-		    			function declareStaticMember(name, def, protected, private, final, abstract, transient, proxy, returnType, argsType, observable, async){
+		    			function declareStaticMember(name, def, protected, private, final, abstract, transient, proxy, returnType, argsType){
 
 		    				if(typeof name === 'function'){
 				    			def = name;
@@ -941,7 +935,7 @@
 								}
 							}
 
-				    		var member = OODKClassMember.factory(constructor, structure, name, def, ((private===true)? 'private': (protected === true)? 'protected': (abstract === false)? 'public': ''), true, final, abstract, transient, proxy, returnType, argsType, observable, async);
+				    		var member = OODKClassMember.factory(constructor, structure, name, def, ((private===true)? 'private': (protected === true)? 'protected': (abstract === false)? 'public': ''), true, final, abstract, transient, proxy, returnType, argsType);
 
 				    		if(abstract !== true){
 
@@ -1020,49 +1014,41 @@
 		    				'__proxy': false,
 		    				'__returnType': false,
 		    				'__args': false,
-		    				'__observable': false,
-		    				'__async': false,
 
 		    				'private': function private(name, def){
 		    					var final = this.__final;
 		    					var abstract = this.__abstract;
 		    					var transient = this.__transient;
-		    					var r = declareStaticMember(name, def, false, true, final, abstract, transient, this.__proxy, this.__returnType, this.__args, this.__observable, this.__async);
+		    					var r = declareStaticMember(name, def, false, true, final, abstract, transient, this.__proxy, this.__returnType, this.__args);
 		    					this.__final = false;
 		    					this.__abstract = false;
 		    					this.__proxy = false;
 		    					this.__returnType = false;
 		    					this.__args = false;
-		    					this.__observable = false;
-		    					this.__async = false;
 		    				},
 		    				'protected': function protected(name, def){
 		    					var final = this.__final;
 		    					var abstract = this.__abstract;
 		    					var transient = this.__transient;
-		    					var r = declareStaticMember(name, def, true, false, final, abstract, transient, this.__proxy, this.__returnType, this.__args, this.__observable, this.__async);
+		    					var r = declareStaticMember(name, def, true, false, final, abstract, transient, this.__proxy, this.__returnType, this.__args);
 		    					this.__final = false;
 		    					this.__abstract = false;
 		    					this.__transient = false;
 		    					this.__proxy = false;
 		    					this.__returnType = false;
 		    					this.__args = false;
-		    					this.__observable = false;
-		    					this.__async = false;
 		    				},
 		    				'public': function public(name, def){
 		    					var final = this.__final;
 		    					var abstract = this.__abstract;
 		    					var transient = this.__transient;
-		    					var r = declareStaticMember(name, def, false, false, final, abstract, transient, this.__proxy, this.__returnType, this.__args, this.__observable, this.__async);
+		    					var r = declareStaticMember(name, def, false, false, final, abstract, transient, this.__proxy, this.__returnType, this.__args);
 		    					this.__final = false;
 		    					this.__abstract = false;
 		    					this.__transient = false;
 		    					this.__proxy = false;
 		    					this.__returnType = false;
 		    					this.__args = false;
-		    					this.__observable = false;
-		    					this.__async = false;
 		    				},
 		    				'final': function final(){
 				    			this.__final = true;
@@ -1223,36 +1209,6 @@
 		    		}else{
 		    			context[name] = def;
 		    		}
-    			}else if(member.isAsynchrone()){
-
-    				if(OODKObject.isFunc(def)){
-
-    					def = (function(name, member, def, instance){
-    						
-    						return function(){
-
-    							var args = arguments;
-
-    							var p = new Promise(function(resolved){
-
-    								var result = def.apply(instance, args);
-
-    								resolved(result);
-	    							
-    							});
-
-    							p.then(function(result){
-    								OODKResource.invoke(instance, '__callback', [name, args, result, undefined]);
-    							}).catch(function(e){
-    								OODKResource.invoke(instance, '__callback', [name, args, undefined, e]);
-    							});
-    							
-    						}
-    					})(name, member, def, instance);
-
-    					context[name] = def;
-    				}
-
     			}else if(member.isTyped() && member.isProperty()){
 
     				//typing
@@ -1280,40 +1236,6 @@
 	    				get: (function(name){
     						return function(){
 	    						return this[name+'_'];
-	    					}
-	    				})(name)
-    				});
-    			}else if(member.isObservable()){
-
-    				context[name] = def;
-    				context[name+'_'] = def;
-
-    				Object.defineProperty(context, name+'_', {
-    					enumerable: false
-    				});
-
-    				Object.defineProperty(context, name, {
-
-    					set: (function(name, member, instance){
-
-    						return function(value){
-
-    							var oldValue = this[name+'_'];
-
-    							if(oldValue !== value){
-
-	    							this[name+'_'] = value;
-
-	    							OODKResource.invoke(instance, '__notify', [name, value, oldValue]);
-	    						}
-	    					}
-	    				})(name, member, instance),
-
-	    				get: (function(name){
-
-    						return function(){
-
-    							return this[name+'_'];
 	    					}
 	    				})(name)
     				});

@@ -47,24 +47,10 @@
 		},
 
 		/**
-		 * Is the member is asyncrone.
-		 */
-		'isAsynchrone': function isAsynchrone(){
-			return (this.async === true);
-		},
-
-		/**
 		 * Is the member is typed.
 		 */
 		'isTyped': function isTyped(){
 			return (this.returnType !== false);
-		},
-
-		/**
-		 * Is the member is typed.
-		 */
-		'isObservable': function isObservable(){
-			return (this.observable !== false);
 		},
 
 		/**
@@ -140,11 +126,7 @@
 		/**
 		 * Factory to instantaite a OODK Class Member object.
 		 */
-		'factory': function factory(constructor, structure, name, def, access, static, final, abstract, transient, proxy, returnType, argsType, observable, async){
-
-			/*if(final === true && typeof def !== 'function'){
-				OODKSystem.throw(OODK.foundation.SyntaxError, "Cannot declare property "+constructor.toString()+"::"+name+" final, the final modifier is allowed only for methods and classes");
-			}*/
+		'factory': function factory(constructor, structure, name, def, access, static, final, abstract, transient, proxy, returnType, argsType){
 
 			var member = {
 				'type': (typeof def === 'function' || abstract === true? 'method': 'property'),
@@ -156,10 +138,8 @@
 				'abstract': abstract,
 				'transient': transient,
 				'proxy': proxy,
-				'async': async,
 				'returnType': returnType,
 				'args': argsType,
-				'observable': observable,
 				'isTyped': this.isTyped,
 				'getReturnType': this.getReturnType,
 				'getArgumentsType': this.getArgumentsType,
@@ -167,13 +147,11 @@
 				'isProperty': this.isProperty,
 				'isFinal': this.isFinal,
 				'isAbstract': this.isAbstract,
-				'isAsynchrone': this.isAsynchrone,
 				'isProxy': this.isProxy,
 				'isStatic': this.isStatic,
 				'isPrivate': this.isPrivate,
 				'isProtected': this.isProtected,
 				'isPublic': this.isPublic,
-				'isObservable': this.isObservable,
 				'getName': this.getName,
 				'getClass': this.getClass
 			};
