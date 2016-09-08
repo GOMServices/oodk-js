@@ -1,7 +1,7 @@
 
 OODK('foundation.util', function($, _){
 	
-	$.public().class(function XHRequest($, µ, _){
+	$.public().implements(OODK.foundation.EventBroadcaster).class(function XHRequest($, µ, _){
 
 		$.protected('xmlhttp');
 
@@ -45,15 +45,42 @@ OODK('foundation.util', function($, _){
 
 					µ.responses.push(response);
 
-					if(typeof µ.callbacks['onComplete'] == 'function'){
+					if(response.hasSucceeded()){
+						var evt = self.factoryEvent('xhRequest.succeeded');
 
-						µ.callbacks['onComplete'].apply(self, [response]);
+						evt.setXHResponse(response);
+
+						$.trigger(evt);
+					}else{
+						var evt = self.factoryEvent('xhRequest.failed');
+
+						evt.setXHResponse(response);
+
+						$.trigger(evt);
 					}
+
+					var evt = self.factoryEvent('xhRequest.done');
+
+					evt.setXHResponse(response);
+
+					$.trigger(evt);
 				}
 			}
 
-			if(OODKObject.isString(url) || OODKObject.instanceOf(url, OODK.foundation.util.Url)){
+			if($.isset(url)){
 				this.setUrl(url);
+			}
+		});
+
+		$.public(function __dispatchEvent(evt){});
+
+		$.public(function __approveListener(request){});
+
+		$.public(function __eventConsumed(evt){
+
+			if(evt.getType() == 'xhRequest.send'){
+
+				µ.doSend(evt);
 			}
 		});
 
@@ -258,11 +285,29 @@ OODK('foundation.util', function($, _){
 			µ.xmlhttp.setRequestHeader(key, value);
 		});
 
+		$.public(function factoryEvent(evtType){
+			
+			var evt = $.new(OODK.foundation.util.XHRequestEvent, evtType, this);
+
+			evt.sync();
+
+			return evt;
+		});
+
 		$.public(function send(){
 
-			if(typeof µ.callbacks['beforeSend'] == 'function'){
+			/*if(typeof µ.callbacks['beforeSend'] == 'function'){
 				µ.callbacks['beforeSend'].apply(this, [this]);
-			}
+			}*/
+
+			var evt = this.factoryEvent('xhRequest.send');
+
+			evt.setCancelable(true);
+
+			$.trigger(evt);
+		});
+
+		$.protected(function doSend(evt){
 
 			if(µ.xmlhttp.readyState !== 0 && µ.xmlhttp.readyState !== 4){
 				OODKSystem.throw(OODK.foundation.IllegalStateException, 'Cannot send the XmlHttpRequest - request is  being proceeded')

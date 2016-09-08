@@ -1567,7 +1567,6 @@ if(typeof window === 'undefined'){
 				var config = OODKConfiger.get('errorHandler');
 
 				if(typeof config !== 'undefined'){
-
 					config.callback(OODKSyntaxer.factory(undefined, undefined, false), err);
 				}else{
 					OODKSystem.throw(e);
@@ -1643,7 +1642,7 @@ if(typeof window === 'undefined'){
 				if(OODKSystem.getEnvType() === 'webworker'){
 					//web worker
 
-					OODKImporter.import('{oodk}/api/Serialization', '{oodk}/api/Event','{oodk}/api/Threading', '{oodk}/foundation/utility/DedicatedThread');
+					OODKImporter.import('{oodk}/foundation/utility/DedicatedThread');
 
 					var DedicatedThread = OODKNamespace.getDeclaredClasses(OODK.foundation.util, 'OODK.foundation.util.DedicatedThread', true, false);
 					
@@ -1652,13 +1651,8 @@ if(typeof window === 'undefined'){
 				}else if(OODKSystem.getEnvType() === 'browser'){
 					// browser
 					OODKSystem.environment = window;
-
-					/*window.onload = function(){
-
-						OODKEventHandler.trigger('ready');
-					};*/
 				}else{
-					throw 'environment not supported by OODK';
+					throw 'OODK is not supported for this environment, please refer to he offical documentation for more details';
 				}
 
 				OODKKeywords.reset();
@@ -1706,15 +1700,45 @@ if(typeof window === 'undefined'){
 			'{oodk}/api/Typing',
 			'{oodk}/api/Comparison',
 			'{oodk}/api/Sort',
-			'{oodk}/api/Event',
-			'{oodk}/api/Threading'
+			'{oodk}/api/Event'
 		]);
+
+		OODKImporter.addDependency('{oodk}/foundation/utility/concurrent/SynchronizedObject', '{oodk}/foundation/utility/concurrent/SynchronizedObjectListener');
+		OODKImporter.addDependency('{oodk}/foundation/utility/concurrent/SynchronizedObject', '{oodk}/foundation/utility/concurrent/SynchronizedMethodInvocationEvent');
+		OODKImporter.addDependency('{oodk}/foundation/utility/concurrent/SynchronizedObject', '{oodk}/foundation/utility/Observable');
+		OODKImporter.addDependency('{oodk}/foundation/utility/concurrent/SynchronizedQueue', '{oodk}/foundation/utility/concurrent/SynchronizedObject');
+		OODKImporter.addDependency('{oodk}/foundation/utility/concurrent/SynchronizedQueue', '{oodk}/foundation/utility/concurrent/SynchronizedQueueListener');
+
+		OODKPackager.add('util.concurrent', [
+			'{oodk}/foundation/utility/concurrent/SynchronizedObject', 
+			'{oodk}/foundation/utility/concurrent/SynchronizedObjectListener',
+			'{oodk}/foundation/utility/concurrent/SynchronizedMethodInvocationEvent',
+			'{oodk}/foundation/utility/concurrent/SynchronizedQueue', 
+			'{oodk}/foundation/utility/concurrent/SynchronizedQueueListener'
+		]);
+
+		OODKImporter.addDependency('{oodk}/foundation/utility/XHRequest', '{oodk}/foundation/utility/XHResponse');
+		OODKImporter.addDependency('{oodk}/foundation/utility/XHRequest', '{oodk}/foundation/utility/Url');
+		OODKImporter.addDependency('{oodk}/foundation/utility/XHRequest', '{oodk}/api/Event');
+		OODKImporter.addDependency('{oodk}/foundation/utility/XHRequest', '{oodk}/foundation/utility/XHRequestEvent');
 
 		OODKPackager.add('util.ajax', [
 			'{oodk}/foundation/utility/Url',
 			'{oodk}/foundation/utility/XHRequest',
 			'{oodk}/foundation/utility/XHResponse'
 		]);
+
+		OODKImporter.addDependency('{oodk}/foundation/utility/Observable', '{oodk}/api/Event');
+		OODKImporter.addDependency('{oodk}/foundation/utility/Observable', '{oodk}/foundation/utility/PropertyChangedEvent');
+
+		OODKPackager.add('util.observable', [
+			'{oodk}/foundation/utility/Observable',
+			'{oodk}/foundation/utility/PropertyChangedEvent'
+		]);
+
+		OODKImporter.addDependency('{oodk}/foundation/utility/RMI', '{oodk}/foundation/utility/RMIRequest');
+		OODKImporter.addDependency('{oodk}/foundation/utility/RMIRequest', '{oodk}/foundation/utility/XHRequest');
+
 
 		/**
 		 * define dependencies for foundation
@@ -1764,5 +1788,11 @@ if(typeof window === 'undefined'){
 			'{oodk}/foundation/exception/PackageDefinitionException',
 			'{oodk}/foundation/exception/UnsupportedOperationException',
 		]);
+
+		OODKImporter.addDependency('{oodk}/foundation/utility/Thread', '{oodk}/api/Serialization');
+		OODKImporter.addDependency('{oodk}/foundation/utility/Thread', '{oodk}/api/Event');
+		OODKImporter.addDependency('{oodk}/foundation/utility/DedicatedThread', '{oodk}/api/Serialization');
+		OODKImporter.addDependency('{oodk}/foundation/utility/DedicatedThread', '{oodk}/api/Event');
+
 	})();
 })(OODK);

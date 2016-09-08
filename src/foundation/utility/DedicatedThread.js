@@ -9,19 +9,11 @@ OODK('foundation.util', function($, _){
 
 		$.protected('state');
 
-		$.protected('queue');
-
 		$.private('reservedEventType');
-
-		$.protected('lockList');
 
 		$.public(function __initialize(){
 
-			µ.queue = [];
-
-			µ.lockList = {};
-
-			_.reservedEventType = ['onsleep', 'onterminate', 'onawake', 'oninitialize'];
+			_.reservedEventType = ['thread.terminate', 'thread.initialize'];
 
 			µ.state = _.ns.DedicatedThread.self.NEW;
 
@@ -35,7 +27,13 @@ OODK('foundation.util', function($, _){
 
 		$.private(function __approveListener(request){});
 
-		$.private(function __eventConsumed(evt){});
+		$.private(function __eventConsumed(evt){
+
+			if(evt.getType() === 'thread.terminate'){
+
+				this.stop(evt.getData());
+			}
+		});
 
 		$.protected(function processEvent(evt){
 
@@ -53,100 +51,36 @@ OODK('foundation.util', function($, _){
 
 					var e = µ.factoryEvent(evt);
 
+					e.setType('thread.ready');
+
 					$.trigger(e);
+				}else{
+					$.throw(OODK.foundation.IllegalStateException, 'Cannot start thread '+µ.name+' - Thread is already started');
 				}
 			}else if(evt.data.type === 'thread.terminate'){
 
-				µ.state = _.ns.DedicatedThread.self.TERMINATED;
-
 				var e = µ.factoryEvent(evt);
+
+				e.setCancelable(true);
 
 				$.trigger(e);
 
-				postMessage({'type': 'thread.terminate'});
-
-			}else if(evt.data.type === 'thread.sleep'){
-
-				µ.state = _.ns.DedicatedThread.self.WAITING;
-
-				var e = µ.factoryEvent(evt);
-
-				$.trigger(e);
-
-			}else if(evt.data.type === 'thread.awake'){
-
-				µ.state = _.ns.DedicatedThread.self.RUNNABLE;
-
-				var e = µ.factoryEvent(evt);
-
-				$.trigger(e);
-
-				this.processQueue();
-
-				this.resetQueue();
-
-			}else if(evt.data.type === 'thread.responselock'){
-
-				if(this.isAlive()){
-
-					if(!this.isAsleep()){
-
-						var e = µ.factoryEvent(evt);
-
-					    e.setData({'result': result, 'lockId': lockId});
-
-						$.trigger(e);
-
-						var result = evt.data.result;
-
-						if(result == 1){
-
-							var lockId = evt.data.lockId;
-
-							if(µ.lockList.hasOwnProperty(lockId)){
-
-								//apply the callback
-								µ.lockList[lockId].apply(null, []);
-
-								delete µ.lockList[lockId];
-
-								postMessage({'type': 'thread.unlock', 'lockId': lockId });
-							}
-						}
-					}else{
-
-						µ.queue.push(evt);
-					}
-				}
-
-			} else{
+			}else{
 
 				// custom event
 
 				if(this.isAlive()){
 
-					if(!this.isAsleep()){
+				    var e = µ.factoryEvent(evt);
 
-					    var e = µ.factoryEvent(evt);
+				    var unserial = $.unserialize(evt.data.data);
+				    
+				    e.setData(unserial);
 
-					    e.setData($.unserialize(evt.data.data));
-
-						$.trigger(e);
-					    
-					}else{
-
-						µ.queue.push(evt);
-					}
+					$.trigger(e);
+					
 				}
 			}
-		});
-
-		$.public(function processQueue(){
-
-			OODKObject.forEach(µ.queue, function(evt){
-					
-				µ.processEvent(evt);
-			});
 		});
 
 		$.public(function resetQueue(){
@@ -166,11 +100,7 @@ OODK('foundation.util', function($, _){
 		});
 
 		$.public(function isAlive(){
-			return ([_.ns.DedicatedThread.self.RUNNABLE, _.ns.DedicatedThread.self.WAITING].indexOf(µ.state) !==-1);
-		});
-
-		$.public(function isAsleep(){
-			return ([_.ns.DedicatedThread.self.WAITING].indexOf(µ.state) !==-1);
+			return (µ.state === _.ns.DedicatedThread.self.RUNNABLE);
 		});
 
 		/**
@@ -188,38 +118,21 @@ OODK('foundation.util', function($, _){
 			postMessage({'type': type, 'data': data});
 		});
 
-		$.private(function lock(lockId, callback){
-
-			if(!µ.lockList.hasOwnProperty(lockId)){
-
-				µ.lockList[lockId] = callback;
-
-				postMessage({'type': 'onrequestlock', 'lockId': lockId});
-			}
-			
-		});
-
-		$.private(function unlock(lockId){
-
-			if(µ.lockList.hasOwnProperty(lockId)){
-
-				delete µ.lockList[lockId];
-
-				postMessage({'type': 'thread.unlock', 'lockId': lockId});
-			}
-		});
-
 		$.protected(function factoryEvent(evt){
 
-			var e = $.new(OODK.foundation.util.ThreadEvent, evt.data.type, this);
+			var e = $.new(OODK.foundation.util.Event, evt.data.type, this);
 
 			e.setSrcEvent(evt);
-
-			e.setThread(this);
 
 			e.sync();
 
 			return e;
+		});
+
+		$.public(function stop(data){
+			µ.state = _.ns.DedicatedThread.self.TERMINATED;
+
+			postMessage({'type': 'thread.terminate', 'data': data});
 		});
 
 		$.static(function($, µ, _){
@@ -229,8 +142,6 @@ OODK('foundation.util', function($, _){
 			$.final().public('RUNNABLE', 2);
 
 			$.final().public('TERMINATED', 3);
-
-			$.final().public('WAITING', 4);
 		});
 	});
 });

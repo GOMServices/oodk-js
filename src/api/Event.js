@@ -30,6 +30,10 @@
 
 		},
 
+		'isRegExp': function isRegExp(str){
+			return OODKString.startsWith(str, '/');
+		},
+
 		'trigger': function trigger(target, type, data){
 
 			var evt;
@@ -83,71 +87,27 @@
 
 		'consumeEvent': function consumeEvent(evt){
 
-	       	evt.consume();
+			evt.consume();
 
-			type = evt.getType();
+	       	type = evt.getType();
 
 			if(this.callbackList.hasOwnProperty(type)){
 
-				var targets = OODKResource.getProperty(evt, 'targets');
+				this.dispatchEvent(evt, this.callbackList[type]);
 
-				if(targets.length == 0){
+			}else{
 
-					OODKObject.forEach(this.callbackList[type], function(pair){
+				for(var _type in this.callbackList){
 
-						if(evt.getPropagationState() == -1){
-							return false;
+					if(this.isRegExp(_type)){
+
+						var regExp = new RegExp(OODKString.middle(_type, '/', '/'), OODKString.rightBack(_type, '/'));
+
+						if(regExp.test(type)){
+							this.dispatchEvent(evt, this.callbackList[_type]);
 						}
-
-						if(typeof pair.target == "undefined"){
-							OODKResource.invoke(pair.listener, '__processEvent', [evt]);
-						}
-					});
-	          	}else{
-
-	          		var self = this;
-
-	          		if(evt.getPropagationMode() == OODK.foundation.util.Event.self.CAPTURE){
-	          			targets.reverse();
-	          		}
-
-          			var caster = 'broadcast';
-
-          			OODKObject.forEach(targets, function(target, key, index){
-
-	          			if(index>0 && evt.getPropagationState() == 0){
-							return false;
-						}else if(evt.getPropagationState() == -1){
-							return false;
-						}
-
-						if(OODKClass.instanceOf(target, OODK.foundation.EventUnicaster)){
-							caster = 'unicast';
-						}
-
-						OODKResource.setProperty(evt, 'currentTarget', target);
-
-						OODKObject.forEach(self.callbackList[type], function(pair){
-
-							if(evt.getPropagationState() == -1){
-								return false;
-							}
-
-							if(pair.target == target || (caster == 'broadcast' && typeof pair.target === 'undefined')){
-								OODKResource.invoke(pair.listener, '__processEvent', [evt]);
-							}
-						});
-
-						if(evt.isPropagable() == false){
-							return false;
-						}
-					});
-
-					if(evt.getPropagationMode() == OODK.foundation.util.Event.self.CAPTURE){
-	          			targets.reverse();
-	          		}
-	          		
-	          	}
+					}
+				}
 			}
 
 			var target = evt.getTarget();
@@ -155,6 +115,71 @@
 			if(OODKObject.isset(target) && !evt.isDefaultPrevented()){
 				OODKResource.invoke(target, '__eventConsumed', [evt]);
 			}
+		},
+
+		'dispatchEvent': function dispatchEvent(evt, listeners){
+
+			var type = evt.getType();
+
+			var targets = OODKResource.getProperty(evt, 'targets');
+
+			if(targets.length == 0){
+
+				OODKObject.forEach(listeners, function(pair){
+
+					if(evt.getPropagationState() == -1){
+						return false;
+					}
+
+					if(typeof pair.target == "undefined"){
+						OODKResource.invoke(pair.listener, '__processEvent', [evt]);
+					}
+				});
+          	}else{
+
+          		var self = this;
+
+          		if(evt.getPropagationMode() == OODK.foundation.util.Event.self.CAPTURE){
+          			targets.reverse();
+          		}
+
+      			var caster = 'broadcast';
+
+      			OODKObject.forEach(targets, function(target, key, index){
+
+          			if(index>0 && evt.getPropagationState() == 0){
+						return false;
+					}else if(evt.getPropagationState() == -1){
+						return false;
+					}
+
+					if(OODKClass.instanceOf(target, OODK.foundation.EventUnicaster)){
+						caster = 'unicast';
+					}
+
+					OODKResource.setProperty(evt, 'currentTarget', target);
+
+					OODKObject.forEach(listeners, function(pair){
+
+						if(evt.getPropagationState() == -1){
+							return false;
+						}
+
+						if(pair.target == target || (caster == 'broadcast' && typeof pair.target === 'undefined')){
+							OODKResource.invoke(pair.listener, '__processEvent', [evt]);
+						}
+					});
+
+					if(evt.isPropagable() == false){
+						return false;
+					}
+				});
+
+				if(evt.getPropagationMode() == OODK.foundation.util.Event.self.CAPTURE){
+          			targets.reverse();
+          		}
+          		
+          	}
 		},
 
 		'on': function on(target, type, listener){

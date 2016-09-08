@@ -81,6 +81,31 @@
 
     describe("OODK-JS:: API reflection", function() {
 
+      it("getClass function", function() {
+
+        expect($.getClass(function(){})).toEqual(Function);
+      });
+
+      it("getClass undefined", function() {
+
+        expect($.getClass(undefined)).toEqual(undefined);
+      });
+
+      it("getClass null", function() {
+
+        expect($.getClass(null)).toEqual(undefined);
+      });
+
+      it("getClass 'test'", function() {
+
+        expect($.getClass("test")).toEqual(String);
+      });
+
+      it("getClass valid instance", function() {
+
+        expect($.getClass(a)).toEqual(ClassA);
+      });
+
       it("inspect a non OODK element should return undefined", function() {
 
         expect($.inspect(function(){})).toEqual(undefined);

@@ -109,11 +109,11 @@ OODK('foundation.util', function($, _){
 		 */
 		$.public(function setType(type){
 
+			µ.testConsumed();
+
 			if(!$.is(type, String)){
 				$.throw(OODK.foundation.IllegalArgumentException, OODKLang.valToString(type) + ' is not a string');
 			}
-
-			µ.testConsumed();
 
 			µ.type = type;
 		});
@@ -367,8 +367,6 @@ OODK('foundation.util', function($, _){
 		 * Set custom data to the event.
 		 */
 		$.public(function setData(data){
-
-			µ.testConsumed();
 
 			µ.data = data;
 		});

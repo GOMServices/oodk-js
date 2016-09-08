@@ -20,7 +20,7 @@
 
 			if(OODKInstance.isValid(obj)){
 				return OODKResource.get(obj, 'constructor');
-			}else if(typeof obj === 'object' && typeof obj.constructor === 'function'){
+			}else if(typeof obj !== 'undefined' && obj !== null  && typeof obj.constructor === 'function'){
 				return obj.constructor;
 			}
 		},

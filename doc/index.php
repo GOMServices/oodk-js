@@ -177,6 +177,7 @@
             <li><a href="#doc-keyword-dump">dump</a></li>
             <li><a href="#doc-keyword-error">error</a></li>
             <li><a href="#doc-keyword-forEach">forEach</a></li>
+            <li><a href="#doc-keyword-getClass">getClass</a></li>
             <li><a href="#doc-keyword-import">import</a></li>
             <li><a href="#doc-keyword-info">info</a></li>
             <li><a href="#doc-keyword-inspect">inspect</a></li>
@@ -290,6 +291,9 @@
           <ul id="menu-design-pattern" class="nav nav-sidebar hidden">
             <li><a href="#design-pattern-event-behavior">Event-behavior</a></li>
             <li><a href="#design-pattern-factory">Factory</a></li>
+            <li><a href="#design-pattern-multithreading">Multi-threading/Concurrent</a></li>
+            <li><a href="#design-pattern-observer">Observer</a></li>
+            <li><a href="#design-pattern-producer-consumer">Producer/consumer</a></li>
             <li><a href="#design-pattern-proxy">Proxy</a></li>
             <li><a href="#design-pattern-singleton">Singleton</a></li>
           </ul>
@@ -2491,6 +2495,27 @@
           // value of index 1 is 2
           // log ([current]:72)
           // value of index 2 is 3
+          </pre>
+
+          <a name="doc-keyword-getClass"></a>
+          <h4 class="sub-header">getClass <i class="font-small">(&nbsp;<font class="oodk-type">Object&nbsp;|&nbsp;Primitive&nbsp;</font><b>obj</b> )</i></h4>
+
+          <p><b>scope(s)</b>:&nbsp;<i>any</i></p>
+
+          <p>Get the class of an object.</p>
+
+          <p>The <a href="#api-reflection">Reflection API</a> provides a complete tool set to perform reflection on class object though the <a href="#doc-keyword-inspect">inspect keyword</a>.</p>
+
+          <pre>
+          $.getClass(null); // undefined
+          $.getClass(function(){}); // Function
+          $.getClass("test"); // String
+
+          var ClassA = $.class(function($, µ, _){});
+
+          var a = $.new(ClassA);
+
+          $.getClass(a); // ClassA
           </pre>
 
           <a name="doc-keyword-implements"></a>
@@ -5959,13 +5984,404 @@
           // outputs: "myDocuments", "myMedias", "myPictures"
           </pre>
 
-          <h4>Observer design pattern</h4>
+          <a name="design-pattern-factory"></a>
+          <h3 class="namespace-header">Factory</h3>
+
+          <p>The factory design pattern defines an interface for the generation of new instances.</p>
+
+          <p>The main advantage is to reduce dependencies between classes by centralizing dependencies around the factory implementation.</p>
+
+          <p>With OODK, two approaches are possibles to implement this design pattern.</p>
+
+          <pre>
+          // class located in {workspace}/myProject/MyFactory.js
+          OODK('myProject', function($, _){
+
+              $.public().class(function MyFactory(){
+                
+                $.static(function($, µ, _){
+                    
+                    // factory for ClassA
+                    $.public(function createClassA(num){
+                        var instance = $.new(OODK.myProject.ClassA);
+
+                        instance.setValue(num);
+
+                        return instance;
+                    });
+
+                    // factory for ClassB
+                    $.public(function createClassB(){
+
+                        // define a loose dependency 
+                        // ClassB is loaded only if it needs to
+                        $.import('{workspace}/myProject/ClassB');
+
+                        return $.new(OODK.myProject.ClassB);
+                    });
+                });
+                
+              });
+          });
+
+          // class located in {workspace}/myProject/ClassA.js
+          OODK('myProject', function($, _){
+
+              $.public().class(function ClassA(){
+
+                $.private('val');
+
+                $.public(function setValue(val){
+                    _.val = val;
+                });
+                
+                $.public(function calculateSum(val){
+                    // without the MyFactory class we generate
+                    // therefore ClassA would be dependent of ClassB
+                    // var b = $.new($.ns.ClassB);
+
+                    // thanks to the Factory design pattern
+                    // ClassA is only dependant of MyFactory 
+                    var b = $.ns.MyFactory.self.createClassB();
+
+                    return b.calculateSum(_.val, val);
+                });
+              });
+          });
+
+          // class located in {workspace}/myProject/ClassB.js
+          OODK('myProject', function($, _){
+
+              $.public().class(function ClassB(){
+                
+                $.public(function calculateSum(v1, v2){                    
+                    return (v1 + v2);
+                });
+              });
+          });
+
+          // code located in main.js
+          // main is only dependant of MyFactory
+          // all together, both ClassA and main are dependant of a unique class MyFactory
+          // otherwise main would be dependant of ClassA, ClassA would be dependant of ClassB
+          // on this basic example it could appear not really valueable but on large project it can saves time
+          // and enhanced the evolutitivity of the software
+          OODK(function($, _){
+
+              // define dependencies for Class MyFactory
+              // ClassB is loosely dependant of MyFactory as we don't need to specify this dependency
+              $.dependency('{workspace}/myProject/MyFactory', '{workspace}/myProject/ClassA');
+              
+              $.import('{workspace}/myProject/MyFactory');
+
+              var a = OODK.myProject.MyFactory.self.createClassA(1);
+
+              $.log(a.calculateSum(2)); // outputs 3
+          });
+          </pre>
+
+          <p>The second approach is based on <a href="#doc-keyword-proxy">proxy</a></p>
+
+          <p>It suits if you don't need to implements a custom logic for the method that generates the instance.</p>
+
+          <pre>
+          $.public().class(function MyFactory(){
+
+            $.static(function($, µ, _){
+            
+                // factory for class ClassA
+                $.proxy(_.ns.ClassA).public('createClassA');
+
+                // factory for class ClassB
+                $.proxy(_.ns.ClassB).public('createClassB');
+            });
+          });
+          </pre>
+
+          <a name="design-pattern-multithreading"></a>
+          <h3 class="namespace-header">Multi-threading/Concurrent</h3>
+
+          <p>HTML5 brings the concept of web worker and allows to set a multi-threading environment.</p>
+
+          <p>Web worker are dedicated ressources which can run in parrallel of the main script.</p>
+
+          <p>The fondamental difference with the concept of thread in standard Jav or c environment is web worker ressources are not shared between the main script and the contextual workers which means workers cannot access objects of the browser context as the DOM, navigator...</p>
+
+          <p>The main script communicates with the contextual workers using messages.</p>
+
+          <p>OODK provides tools to implements to handle workers: the Thread class as well as the SynchronizedObject utility class.</p>
+
+          <p>As communication is based on message exchange, the OODK Thread works with Event API to handle interactions between the thread and its context.</p>
+
+          <p>Only dedicated worker are supported by OODK, share worker is not yet supported.</p>
+
+          <p>The following code snippet is a very basic example how the main script creates threads and give them some works to do.</p>
+
+          <pre>
+          // main script, give job to do to threads
+          OODK(function($, _){
+
+            // import the Thread utility class
+            $.import('{oodk}/foundation/utility/Thread');
+
+            $.implements(OODK.foundation.EventListener).class(function ThreadListener($, µ, _){
+
+                $.private(function __processEvent(evt){
+
+                  var thread = evt.getTarget();
+
+                  if(evt.getType() === 'thread.ready'){
+
+                    // send as custom parameter of the message the number to count
+                    thread.send('thread.countRequest', 10);
+
+                  }if(evt.getType() === 'thread.countResponse'){
+
+                    $.log('result of the count for thread ' + thread.getName() + ' is ' + evt.getData(), 'main');
+
+                  }
+                });
+            });
+
+            var tl = $.new(_.ThreadListener);
+
+            // instantiate a thread
+            // thread is now in state NEW but not yet active
+            // web worker works must be excuted in a separate file,
+            // and specified in OODK during the instantiation 
+            var t1 = $.new(OODK.foundation.util.Thread, 'myThread.js');
+
+            // bind event thread.ready, this event is triggered when the thread
+            // is started 
+            $.on(t1, 'thread.ready', tl);
+
+            // bind this when the thread has terminated its job of counting
+            $.on(t1, 'thread.countResponse', tl);
+
+            var t2 = $.new(OODK.foundation.util.Thread, 'myThread.js');
+
+            $.on(t2, 'thread.ready', tl);
+
+            $.on(t2, 'thread.countResponse', tl);
+
+            // activate threads
+            t1.start();
+            t2.start();
+            
+          });
+
+          // implementation of the thread, located in myThread.js
+          OODK(function($, _){
+
+              $.implements(OODK.foundation.EventListener).class(function DedicatedThreadListener($, µ, _){
+
+                $.protected(function __processEvent(evt){
+
+                  if(evt.getType() == 'thread.countRequest'){
+                    
+                    // get the count number send by the main script
+                    var count = evt.getData();
+
+                    for(var i=0; i&lt;count; i++){
+                      $.log('iteration ' + i, $.env().getName());
+                    }
+
+                    $.env().send('thread.countResponse', i);
+                  }
+                });
+              });
+
+              var dtl = $.new(_.DedicatedThreadListener);
+
+              // In a thread context, the contextual environment is an instance of the DedicatedThread utility class
+              $.on($.env(), 'thread.countRequest', dtl);
+
+          });
+          </pre>
+
+          <p>As seen in the console the previous example threads run in parrallel, that is great multiple operations can be executed at the same time without perturbating the main script.</p>
+
+          <p>A most common situation in a multi-htreaded environment comes when threads have to work on the same object. As memory is not shared between web workers, this is simply impossible to shared the same reference of an object between different threads.</p>
+
+          <p>However, OODK provides a based class to synchronize an object between multiple threads by using the SynchronizedObject utility class.</p>
+
+          <p>A SynchronizedObject keep it states synchronized among all threads with which it is synchronized. As it is, all threads store the exact copy of the object.</p>
+
+          <p>Moreover a synchronized object can perform a concurrent method invocation on the same method and handles simultaneous call. This ensures that the method is executed by only one thread at a T time.</p>
+
+          <p>The following example shows a basic implementation of the concurrent design pattern: two threads perform the counting on a synchronized object at the same time and store the result in a member property.</p>
+
+          <p>As the result is used to perform the counting, the method must be synchronized between threads to avoid calculating the wrong result.</p>
+
+          <pre>
+          // ClassA, perform the couting and store the result
+          OODK('project', function($, _){
+
+              $.public().extends(OODK.foundation.util.concurrent.SynchronizedObject).class(function ClassA($, µ, _){
+
+                $.private('result', 0);
+
+                $.public(function __initialize(){
+
+                  $.super.__initialize();
+                  
+                  // define result as a synchronized with the setter setResult
+                  µ.defineSynchronizedProperty('result', 'setResult');
+                });
+
+                $.private(function setResult(result){
+                  µ.setSynchronizedProperty('result', result); 
+                });
+
+                $.public(function getResult(){
+                  return _.result;  
+                });
+                
+                $.public(function count(){
+                  // call a synchronized method invocation
+                  // doCount will be called once the lock is gained
+                  return µ.setSynchronizedMethodInvocation('doCount', arguments);  
+                });
+
+                // perform the counting
+                $.private(function doCount(){
+
+                  $.log('start counting, current result is ' + _.result, $.env().getName());
+
+                  var counter = _.result;
+
+                  for(var i=0; i&lt;10000000; i++){
+                    counter++;
+                  }
+
+                  $.log('end counting', $.env().getName());
+
+                  // update the result
+                  _.setResult(counter);
+
+                  if($.envtype() == 'webworker'){
+
+                    // notify the main thread that the couting is erformed using the queue channel.
+                    // A 'synchronizedQueue.countResponse' event is automatically triggered
+                    // in the main script  with the queue as target
+                    this.notify('synchronizedQueue.countResponse', counter);
+                  }
+              
+                });
+              });
+
+          });
+
+          // main script, synchronized the object between all threads 
+          // and display the result once all couting are done
+          OODK(function($, _){
+
+            // import the Thread utility class
+            $.import('{oodk}/foundation/utility/Thread');
+
+            // define dependency for ClassA
+            $.dependency('{workspace}/project/ClassA', '{oodk}/foundation/utility/concurrent/SynchronizedObject');
+
+            // and import it
+            $.import('{workspace}/project/ClassA');
+
+            $.implements(OODK.foundation.EventListener).class(function ThreadListener($, µ, _){
+
+                // number of counting performed
+                $.private('counterDone', 0);
+
+                $.private(function __processEvent(evt){
+
+                  var thread = evt.getTarget();
+
+                  if(evt.getType() === 'thread.ready'){
+
+                    // thread is ready, synchronize the object with the current htread
+                    a.synchronize(thread);
+
+                    $.on(a, 'synchronizedQueue.countResponse', this);
+
+                  }if(evt.getType() === 'synchronizedQueue.countResponse'){
+
+                    _.counterDone ++;
+
+                    // when all couting are done
+                    if(_.counterDone >= a.getThreads().length){
+
+                      // display the result
+                      $.log('result of a is ' + a.getResult(), 'main');
+                    }
+
+                  }
+                });
+            });
+
+            //instantiate the synchronized object
+            var a = $.new(OODK.project.ClassA);
+
+            var tl = $.new(_.ThreadListener);
+
+            var t1 = $.new(OODK.foundation.util.Thread, 'myThread.js');
+
+            $.on(t1, 'thread.ready', tl);
+
+            var t2 = $.new(OODK.foundation.util.Thread, 'myThread.js');
+
+            $.on(t2, 'thread.ready', tl);
+
+            // activate all threads
+            OODK.foundation.util.Thread.self.startAll();
+            
+           });
+
+           // implementation of the thread, located in myThread.js
+           OODK(function($, _){
+
+              $.dependency('{workspace}/project/ClassA', '{oodk}/foundation/utility/concurrent/SynchronizedObject');
+
+              $.import('{workspace}/project/ClassA');
+
+              OODK.foundation.util.concurrent.SynchronizedObject.self.start();
+
+              $.implements(OODK.foundation.EventListener).class(function DedicatedThreadListener($, µ, _){
+
+                $.protected(function __processEvent(evt){
+
+                  if(evt.getType() == 'synchronizedObject.ready'){
+                    
+                    //start counting when an object is synchronized
+
+                    var synchronizedObject = evt.getTarget();
+
+                    if($.instanceOf(synchronizedObject, OODK.project.ClassA)){
+                        synchronizedObject.count();
+                    }
+
+                  }
+                });
+              });
+
+              var dtl = $.new(_.DedicatedThreadListener);
+
+              // listen on the global event synchronizedObject.ready, triggered when an object is synchronized
+              // with the current thread
+              $.on('synchronizedObject.ready', dtl);
+
+          });
+          </pre>
+
+          <p>Many variants of the concurrent design patterns exists as the <a href="#design-pattern-producer-consumer">producer/consumer design pattern</a> details below.</p>
+
+          <a name="design-pattern-observer"></a>
+          <h3 class="namespace-header">Observer</h3>
 
           <p>The observer design pattern is a specific implementation of the event-behavior design pattern.</p>
 
           <p>The publisher informed its subscribers when one of its property's value has changed.</p>
 
           <p>The most known application if this pattern is, in the context of an MVC application, when a model change (the observable), related views (the observers) update their display to reflect the change occured in the model.</p>
+
+          <p>OODK provides two utility classes to implement the observer design pattern easily: Observable and PropertyChangedEvent</p>
 
           <pre>
           &lt;!DOCTYPE html&gt;
@@ -5986,50 +6402,9 @@
 
               OODK(function($, _){
 
-                  $.import('{oodk}/api/Event');
+                  $.import('{oodk}/api/Event', '[util.observable]');
 
-                  // declared a custom event to handle property changes
-                  $.extends(OODK.foundation.util.Event).class(function PropertyChangedEvent($, µ, _){
-
-                    $.private('propertyName');
-
-                    $.private('newValue');
-
-                    $.private('oldValue');
-
-                    $.private('observable');
-                    
-                    $.public(function __initialize(propertyName, newValue, oldValue, observable){
-                        
-                        _.propertyName = propertyName;
-
-                        _.newValue = newValue;
-
-                        _.oldValue = oldValue;
-
-                        $.super.__initialize('propertyChanged', observable);
-                    });
-
-                    $.public(function getPropertyName(){
-                        return _.propertyName;
-                    });
-
-                    $.public(function getNewValue(){
-                        return _.newValue;
-                    });
-
-                    $.public(function getOldValue(){
-                        return _.oldValue;
-                    });
-
-                    $.private(function __eventConsumed(evt){});
-
-                    $.private(function __dispatchEvent(evt){});
-
-                    $.private(function __approveListener(request){});
-                  });
-
-                  $.implements(OODK.foundation.EventBroadcaster).class(function Employee($, µ, _){
+                  $.extends(OODK.foundation.util.Observable).class(function Employee($, µ, _){
 
                       $.private("name");
 
@@ -6042,36 +6417,15 @@
                       });
 
                       $.public(function setName(name){
-                        _.setProperty('name', name);
+                        return µ.setObservableProperty('name', name, _);
                       });
 
                       $.public(function setAge(age){
-                        _.setProperty('age', age);
+                        return µ.setObservableProperty('age', age, _);
                       });
 
                       $.public(function getId(){
                         return _.id;
-                      });
-
-                      $.private(function setProperty(propertyName, newValue){
-
-                        // first test if the value has changed
-                        var oldValue = _[propertyName];
-
-                        if(oldValue !== newValue){
-                            
-                            //assign the value ...
-                            _[propertyName] = newValue;
-
-                            var evt = $.new(_.ns.PropertyChangedEvent, propertyName, newValue, oldValue, this);
-
-                            // we don't want an observer stop the propagation of the event to others observers
-                            // desactivate the interruptable mode
-                            evt.setInterruptable(false);
-
-                            // .. and notify observers
-                            $.trigger(evt);
-                        }
                       });
                   });
                     
@@ -6180,7 +6534,9 @@
 
           <p>An another example of the observer design pattern based on the EventAgregation concept.</p>
 
-          <p>Our model is now a collection of observable items. Views subscribes to the collection instead of subscribing to each observable items. Collection is an EventAgregator, it observes changes its items and notify the views of changes.</p>
+          <p>Our model is now a collection of observable items. Views subscribes to the collection instead of subscribing to each observable items to update the user interface. Collection is an EventAgregator, it observes changes occured in its stored items and notify the views of changes.</p>
+
+          <p>Collection becomes the central point of the observer architecture.</p>
 
           <pre>
           &lt;!DOCTYPE html&gt;
@@ -6201,17 +6557,17 @@
 
               OODK(function($, _){
 
-                $.import('{oodk}/api/Event');
+                $.import('{oodk}/api/Event', '[util.observable]');
 
                 $.extends(OODK.foundation.util.Event).class(function MutableEvent($, µ, _){
 
                     $.private('model');
-                    
-                    $.public(function __initialize(type, model, observable){
+
+                    $.public(function setModel(model){
+
+                        µ.testConsumed();
 
                         _.model = model;
-                        
-                        $.super.__initialize(type, observable);
                     });
 
                     $.public(function getModel(){
@@ -6219,7 +6575,7 @@
                     });
                 });
 
-                $.implements(OODK.foundation.EventBroadcaster).class(function Employee($, µ, _){
+                $.extends(OODK.foundation.util.Observable).class(function Employee($, µ, _){
 
                     $.private("name");
 
@@ -6232,7 +6588,7 @@
                     });
 
                     $.public(function setName(name){
-                        _.setProperty('name', name);
+                        return µ.setObservableProperty('name', name, _);
                     });
 
                     $.public(function getName(){
@@ -6240,7 +6596,7 @@
                     });
 
                     $.public(function setAge(age){
-                        _.setProperty('age', age);
+                        return µ.setObservableProperty('age', age, _);
                     });
 
                     $.public(function getAge(){
@@ -6250,28 +6606,6 @@
                     $.public(function getId(){
                         return _.id;
                     });
-
-                    $.private(function setProperty(propertyName, newValue){
-
-                        var oldValue = _[propertyName];
-
-                        if(oldValue !== newValue){
-                            
-                            _[propertyName] = newValue;
-
-                            var evt = $.new(_.ns.PropertyChangedEvent, propertyName, newValue, oldValue, this);
-
-                            evt.setInterruptable(false);
-
-                            $.trigger(evt);
-                        }
-                    });
-
-                    $.private(function __eventConsumed(evt){});
-
-                    $.private(function __dispatchEvent(evt){});
-
-                    $.private(function __approveListener(request){});
                 });
               
 
@@ -6284,18 +6618,16 @@
 
                     var key = model.getId();
 
-                    // test if the model is not already stored in the collection
                     if(!_.hasOwnProperty(key)){
 
-                        // assign the model to the private context using the key passed as argument
                         _[key] = model;
+
+                        var evt = µ.factoryMutableEvent('itemAdded', model);
+
+                        $.trigger(evt);
 
                         // listen changes made on the item
                         $.on(model, 'propertyChanged', this);
-
-                        var evt = $.new(_.ns.MutableEvent, 'itemAdded', model, this);
-
-                        $.trigger(evt);
                     }
                   });
 
@@ -6304,24 +6636,38 @@
 
                     var key = model.getId();
 
-                    // test if the model exists in the collection
                     if(_.hasOwnProperty(key)){
 
                         delete _[key];
 
-                        var evt = $.new(_.ns.MutableEvent, 'itemRemoved', model, this);
+                        var evt = µ.factoryMutableEvent('itemRemoved', model);
 
                         $.trigger(evt);
+
+                        // stop listening the item
+                        $.off(model, 'propertyChanged', this);
                     }
                   });
 
-                  // intercept the propertyChanged triggered by the observable item and 
-                  // broadcast a new event MutableEvent to views
+                  // factory for mutable event
+                  $.protected(function factoryMutableEvent(eventType, model){
+
+                    var evt = $.new(_.ns.MutableEvent, eventType, this);
+
+                    evt.setModel(model);
+
+                    evt.sync();
+
+                    evt.setInterruptable(false);
+
+                    return evt;                    
+                  });
+
+                  // intercept the propertyChangedEvent triggered by the observable item and 
+                  // broadcast a new MutableEvent to views
                   $.public(function __processEvent(evt){
 
-                    var evtProxy = $.new(_.ns.MutableEvent, 'propertyChanged', evt.getTarget(), this);
-
-                    evtProxy.setInterruptable(false);
+                    var evtProxy = µ.factoryMutableEvent('propertyChanged', evt.getTarget());
 
                     evtProxy.setSrcEvent(evt);
 
@@ -6476,120 +6822,326 @@
           &lt;/html&gt;
           </pre>
 
-          <a name="design-pattern-factory"></a>
-          <h3 class="namespace-header">Factory</h3>
+          <a name="design-pattern-producer-consumer"></a>
+          <h3 class="namespace-header">Producer/Consumer</h3>
 
-          <p>The factory design pattern defines an interface for the generation of new instances.</p>
+          <p>The prodcuer/consumer design pattern is a very common use case in a multi-threaded environment.</p>
 
-          <p>The main advantage is to reduce dependencies between classes by centralizing dependencies around the factory implementation.</p>
+          <p>The producer (usually the main thread) produce a message in a queue and consumer (usually threads), consume this message.</p>
 
-          <p>With OODK, two approaches are possibles to implement this design pattern.</p>
+          <p>OODK provides the SynchronizedQueue utility class to implement this design pattern.</p>
 
-          <pre>
-          // class located in {workspace}/myProject/MyFactory.js
-          OODK('myProject', function($, _){
-
-              $.public().class(function MyFactory(){
-                
-                $.static(function($, µ, _){
-                    
-                    // factory for ClassA
-                    $.public(function createClassA(num){
-                        var instance = $.new(OODK.myProject.ClassA);
-
-                        instance.setValue(num);
-
-                        return instance;
-                    });
-
-                    // factory for ClassB
-                    $.public(function createClassB(){
-
-                        // define a loose dependency 
-                        // ClassB is loaded only if it needs to
-                        $.import('{workspace}/myProject/ClassB');
-
-                        return $.new(OODK.myProject.ClassB);
-                    });
-                });
-                
-              });
-          });
-
-          // class located in {workspace}/myProject/ClassA.js
-          OODK('myProject', function($, _){
-
-              $.public().class(function ClassA(){
-
-                $.private('val');
-
-                $.public(function setValue(val){
-                    _.val = val;
-                });
-                
-                $.public(function calculateSum(val){
-                    // without the MyFactory class we generate
-                    // therefore ClassA would be dependent of ClassB
-                    // var b = $.new($.ns.ClassB);
-
-                    // thanks to the Factory design pattern
-                    // ClassA is only dependant of MyFactory 
-                    var b = $.ns.MyFactory.self.createClassB();
-
-                    return b.calculateSum(_.val, val);
-                });
-              });
-          });
-
-          // class located in {workspace}/myProject/ClassB.js
-          OODK('myProject', function($, _){
-
-              $.public().class(function ClassB(){
-                
-                $.public(function calculateSum(v1, v2){                    
-                    return (v1 + v2);
-                });
-              });
-          });
-
-          // code located in main.js
-          // main is only dependant of MyFactory
-          // all together, both ClassA and main are dependant of a unique class MyFactory
-          // otherwise main would be dependant of ClassA, ClassA would be dependant of ClassB
-          // on this basic example it could appear not really valueable but on large project it can saves time
-          // and enhanced the evolutitivity of the software
-          OODK(function($, _){
-
-              // define dependencies for Class MyFactory
-              // ClassB is loosely dependant of MyFactory as we don't need to specify this dependency
-              $.dependency('{workspace}/myProject/MyFactory', '{workspace}/myProject/ClassA');
-              
-              $.import('{workspace}/myProject/MyFactory');
-
-              var a = OODK.myProject.MyFactory.self.createClassA(1);
-
-              $.log(a.calculateSum(2)); // outputs 3
-          });
-          </pre>
-
-          <p>The second approach is based on <a href="#doc-keyword-proxy">proxy</a></p>
-
-          <p>It suits if you don't need to implements a custom logic for the method that generates the instance.</p>
+          <p>The following example is an implementation of this pattern using this requirements: the producer (main script) produces tasks until it reachs the capacity of the queue. The consumers (thread) consume the queue and execute the retrieved task. Once done the consumer informs the producer and consume a new task until the queue is empty. If the consumer is performing a task it can be stopped until the current task is done.</p>
 
           <pre>
-          $.public().class(function MyFactory(){
+          // Task class, located in '{workspace}/project'
+          // Task must implement Serializable to transit in the thread communication channel properly
+          $.public().implements(OODK.foundation.Serializable).class(function Task($, µ, _){
+
+            // random value
+            $.private('salt');
+
+            $.public(function __initialize(){
+              _.salt = Math.random();
+            });
+
+            // get the salt
+            $.public(function getSalt(){
+              return _.salt;
+            });
+
+            // execute the task, iterate over the salt
+            $.public(function execute(){
+
+              var max = (_.salt*1000000000);
+
+              for(var i=0; i&lt;max; i++){}
+
+              return i;
+            });
 
             $.static(function($, µ, _){
-            
-                // factory for class ClassA
-                $.proxy(_.ns.ClassA).public('createClassA');
 
-                // factory for class ClassB
-                $.proxy(_.ns.ClassB).public('createClassB');
+              // factory for the Task class
+              $.public(function factory(){
+                
+                return $.new($.ns.Task);
+              });
             });
           });
-          </pre>
+
+          // producer, located in main.js
+          OODK(function($, _){
+
+            $.import('{oodk}/foundation/utility/Thread', '[util.concurrent]', '{workspace}/project/Task');
+
+            $.implements(OODK.foundation.EventListener).class(function Producer($, µ, _){
+
+              // number of task done
+              $.private('taskDone', 0);
+
+              // number of thread ready
+              $.private('threadReady', 0);
+
+              // number of task produced
+              $.private('taskProduced', 0);
+
+              $.private(function __processEvent(evt){
+
+                if(evt.getType() === 'thread.ready'){
+
+                  _.threadReady++;
+
+                  queue.synchronize(evt.getTarget());
+
+                  //all threads are ready start producing values
+                  if(_.threadReady == 2){
+
+                    var task = OODK.project.Task.self.factory();
+
+                    queue.put(task);
+                  }
+
+                }else if(evt.getType() === 'thread.terminate'){
+
+                  $.info(evt.getData() + ' task(s) executed', evt.getTarget().getName());
+
+                }else if(evt.getType() == 'synchronizedQueue.elementRemoved'){
+
+                  // once an element is taken from the queue  
+                  var q = evt.getTarget();
+
+                  $.log(q.remainingElements() + ' tasks remanining in the queue', 'main');
+                  
+                }else if(evt.getType() == 'synchronizedQueue.elementAdded'){
+
+                  //produce a number of values equal to the max capacity of the queue
+
+                  $.log('produce task ' + evt.getData().getSalt(), 'main');
+
+                  _.taskProduced++;
+
+                  if(_.taskProduced&lt;queue.getCapacity()){
+
+                    var task = OODK.project.Task.self.factory();
+
+                    queue.put(task);
+                  }else{
+                    $.info(_.taskProduced + ' tasks produced', 'main');
+                  }
+                  
+                }else if(evt.getType() == 'synchronizedQueue.taskDone'){
+                  //message received from the consumer that it has performed a task
+
+                  _.taskDone++;
+
+                  var q = evt.getTarget();
+
+                  // once all tasks are performed stop all threads
+                  if(q.getCapacity() == _.taskDone){
+
+                    OODK.foundation.util.Thread.self.stopAll();
+                  }
+                }
+              });
+            });
+
+            // instantiate the queue
+            var queue = $.new(OODK.foundation.util.concurrent.SynchronizedQueue, 10);
+
+            // instantiate consumers
+            var c1 = $.new(OODK.foundation.util.Thread, "consumer.js");
+
+            var c2 = $.new(OODK.foundation.util.Thread, "consumer.js");
+
+            // bind listeners
+            var tel = $.new(_.Producer);
+            
+            $.on(c1, 'thread.ready', tel);
+
+            $.on(c1, 'thread.terminate', tel);
+
+            $.on(c2, 'thread.ready', tel);
+
+            $.on(c2, 'thread.terminate', tel);
+
+            $.on(queue, 'synchronizedQueue.elementAdded', tel);
+            $.on(queue, 'synchronizedQueue.elementRemoved', tel);
+            $.on(queue, 'synchronizedQueue.taskDone', tel);
+            
+            // start all threads
+            OODK.foundation.util.Thread.self.startAll();
+
+            // inject a new consumer after two seconds
+            setTimeout(function(){
+
+              var c3 = $.new(OODK.foundation.util.Thread, "consumer.js");
+            
+              $.on(c3, 'thread.ready', tel);
+
+              $.on(c3, 'thread.terminate', tel);
+
+              c3.start();
+
+            }, 2000);
+
+            // stop consumer 2 after three seconds
+            setTimeout(function(){
+
+              c2.stop();
+
+            }, 3000);
+
+          });
           
+          // consumer, located in consumer.js
+          OODK(function($, _){
+
+              $.import('[util.concurrent]', '{workspace}/project/Task');
+
+              // start the synchronizer
+              OODK.foundation.util.concurrent.SynchronizedObject.self.start();
+
+              $.implements(OODK.foundation.EventListener).class(function Consumer($, µ, _){
+
+                // number of task done
+                $.private('counterTaskDone', 0);
+
+                // flag to indicate the producer send a terminate request to this consumer
+                $.private('terminateRequest', false);
+
+                // flag to indicate the current consumer is perfroming a task
+                $.private('taskBeingProcessed', false);
+
+                $.protected(function __processEvent(evt){
+
+                  if(evt.getType() == 'synchronizedQueue.ready'){
+                    //queue is synchronized with this thread, start consuming the queue
+
+                    var queue = evt.getTarget();
+
+                    // bind listener
+                    $.on(queue, 'synchronizedQueue.elementAdded', this);
+                    $.on(queue, 'synchronizedQueue.elementRetrieved', this);
+                    $.on(queue, 'synchronizedQueue.noElementRemaining', this);
+
+                    $.on(queue, 'synchronizedObject.synchronizedMethodInvocationRequested', this);
+                    $.on(queue, 'synchronizedObject.synchronizedMethodInvocationDelayed', this);
+                    $.on(queue, 'synchronizedObject.synchronizedMethodInvocationCancelled', this);
+
+                    // take a task
+                    queue.take();
+
+                  }else if(evt.getType() == 'synchronizedQueue.elementRetrieved'){
+
+                    // task is retrieved, start performing the task
+
+                    var task = evt.getData();
+
+                    var queue = evt.getTarget();
+
+                    $.log('process task ' + task.getSalt(), $.env().getName());
+
+                    var d1 = new Date();
+
+                    // perform the task
+                    task.execute();
+
+                    var d2 = new Date();
+
+                    $.log('task ' + task.getSalt() + ' performed in ' + ((d2 - d1)/1000) + 's ', $.env().getName());
+
+                    _.counterTaskDone++;
+
+                    // send a message to the producer that it has performed the task
+                    $.env().send('consumer.taskDone', {'syncId': queue.getSyncId()});
+
+                    _.taskBeingProcessed = false;
+
+                    if(_.terminateRequest == true){
+                      // a terminate request has been received, consumer can now stop properly
+
+                      $.info(_.counterTaskDone + ' task(s) executed', $.env().getName());
+
+                      $.env().stop();
+
+                    }else if(queue.remainingElements()>0){
+                      // at least one task remains in the queue, take it
+
+                      queue.take();
+                    }
+
+                  }else if(evt.getType() == 'synchronizedQueue.elementAdded'){
+
+                    var queue = evt.getTarget();
+
+                    if(queue.remainingElements()>0){
+                      // task remains is queue, take next one 
+                      queue.take();
+                    }
+
+                  }else if(evt.getType() == 'thread.terminate'){
+
+                    _.terminateRequest = true;
+
+                    if(_.taskBeingProcessed === true){
+
+                      // a task is being processed, cancel the terminate request and allows the thread to process the task 
+                      evt.preventDefault();
+                    }else{
+                      $.info(_.counterTaskDone + ' task(s) executed', $.env().getName());
+                    }
+
+                  }else if(evt.getType() == 'synchronizedObject.synchronizedMethodInvocationRequested'){
+
+                    // take a task, set the flag to true
+                    
+                    _.taskBeingProcessed = true;
+
+                  }else if(evt.getType() == 'synchronizedObject.synchronizedMethodInvocationDelayed'){
+
+                    // handle the case when the thread take a task but does not obtain the lock immedialty
+                    // if a terminate request is processing cancel the lock and stop
+
+                    var queue = evt.getTarget();
+
+                    if(_.terminateRequest == true){
+
+                      queue.clearSynchronizedMethodInvocation(evt.getLockId());
+
+                      $.info(_.counterTaskDone + ' task(s) executed', $.env().getName());
+
+                      $.env().stop();
+                    }
+                  }else if(evt.getType() == 'synchronizedObject.synchronizedMethodInvocationCancelled'){
+
+                    if(_.terminateRequest == true){
+
+                      $.info(_.counterTaskDone + ' task(s) executed', $.env().getName());
+                      
+                      $.env().stop();
+                    }
+                  }else if(evt.getType() == 'synchronizedQueue.noElementRemaining'){
+                    // handle the case when the thread take a task but after obtaining the lock
+                    // all tasks has been consumed by other threads
+
+                    if(_.terminateRequest == true){
+
+                      $.info(_.counterTaskDone + ' task(s) executed', $.env().getName());
+                      
+                      $.env().stop();
+                    }
+                  }
+                });
+              });
+
+              var c = $.new(_.Consumer);
+
+              $.on('synchronizedQueue.ready', c);
+
+              $.on($.env(), 'thread.terminate', c);
+          });
+          </pre>
 
           <a name="design-pattern-proxy"></a>
           <h3 class="namespace-header">Proxy</h3>
@@ -6702,13 +7254,15 @@
 
           <p>This following example shows an implementation of the Remote proxy design pattern.</p>
 
-          <p>It uses the <a href="#foundation-util-RemoteProxy">RemoteProxy</a> class as interface between the proxy class and a distant php script.</p>
+          <p>It uses the <a href="#foundation-util-RMI">RMI</a> class as interface between the source class and a distant php script.</p>
 
-          <p>The RemoteProxy handles XHRequest to communicate with the distant script and transmit the result to proxy method.</p>
+          <p>Each time a remote proxy method is called, RMI send an <a href="#foundation-util-RMIRequest">RMIRequest</a> to the distant script and froward back the result to the source method.</p>
+
+          <p>Logic of pre-processing and post-pocessing data of the request is done through an EventListener which allows a full customization based on specific needs of the project.</p>
 
           <pre>
-          // On server side the api.php script performed the operation
-          // this a really basic script, no security nor validation is made on data
+          // On server side the api.php script performed the requested operation
+          // this is a really basic script, no security nor validation is made on data
           // it serves only to demonstrate how to implements a remote proxy unsing OODK 
           &lt;?php
 
@@ -6735,77 +7289,113 @@
           // on browser side, implements the remote proxy
           OODK(function($, _){
           
-              // import the RemoteProxy class used to define the logic of the remote invocation
-              $.import('{oodk}/foundation/utility/RemoteProxy');
+              // import the RMI class as well the EventListener utility class
+              $.import('{oodk}/foundation/utility/RMI', '{oodk}/foundation/utility/EventListener');
 
-              // pass the acces url to the php script to the initializer 
-              // it can be done as well using the setUrl method
-              var remoteProxy = $.new(OODK.foundation.util.RemoteProxy, 'http://myhost/api.php');
+              // implements the RMIListener to handle the logic of sending and retrieving data
+              // through XHRequest and sending back to the source method
+              $.extends(OODK.foundation.util.EventListener).class(function RMIListener($, µ, _){
 
-              // implements the logic to prepare the request depending on the source method requesting the remote call.
-              // provides as first argument the XHRequest. 
-              remoteProxy.beforeSend(function(xhrequest){
+                // called before the request is sent, customize the request on specific need
+                $.private(function send(evt){
 
-                var method, args;
+                    var rmiRequest = evt.getTarget();
 
-                // get the source method name of the call
-                method = this.getMethodName();
+                    // set the distant script url
+                    rmiRequest.setUrl('http://localhost/api.php');
 
-                // define the url get parameter to identity the current requested operation
-                if(method == 'sum'){
-                    xhrequest.getUrl().setSearchFragment('m', 'sum');
-                }else if(method == 'sub'){
-                    xhrequest.getUrl().setSearchFragment('m', 'sub');
-                }
+                    // force the synchrone mode
+                    rmiRequest.sync();
 
-                // get arguments passed to the source method (1 and 2 in this example)...
-                args = this.getArguments();
+                    var method, args;
 
-                // ... and inject it as post parameters of the request
-                xhrequest.setPostFragment('v1', args[0]);
-                xhrequest.setPostFragment('v2', args[1]);
-              });
+                    // get the source method name of the call
+                    method = rmiRequest.getMethodName();
 
-              // implements the logic once the request is done, 
-              // to transmit the result to the source method
-              // or an error if the request has failed
-              remoteProxy.onComplete(function(xhresponse){
+                    // define the url get parameter to identity the current requested operation
+                    if(method == 'sum'){
+                        rmiRequest.getUrl().setSearchFragment('m', 'sum');
+                    }else if(method == 'sub'){
+                        rmiRequest.getUrl().setSearchFragment('m', 'sub');
+                    }else{
+                      // method is not supported cancel the request
+                      evt.preventDefault();
 
-                if(xhresponse.hasSucceeded()){
+                      rmiRequest.setError($.new(OODK.foundation.UnsupportedOperationException, $.getClass(rmiRequest.getContext()) + "." +  method+  "() is not supported"));
+                    }
 
-                  // request has succeeded transmit the result
+                    // get arguments passed to the source method (1 and 2 in this example)...
+                    args = rmiRequest.getArguments();
 
-                  // as the php script send a content-type: application/json header
-                  // calling the get method of the response automatically parse the json string 
-                  // and return a js object
-                  var json = xhresponse.get();
+                    // ... and inject it as post parameters of the request
+                    rmiRequest.setPostFragment('v1', args[0]);
+                    rmiRequest.setPostFragment('v2', args[1]);
+                });
+
+                // called once the request is done
+                // post process data from the request and
+                // update the rmi request to inform the source method
+                $.private(function done(evt){
+
+                    var rmiRequest = evt.getTarget();
+
+                    var xhresponse = evt.getXHResponse();
                     
-                  // transmit the result to the source method
-                  this.setResult(json.result);
-                }else{
+                    if(xhresponse.hasSucceeded()){
 
-                  // in case of failure, transmit the error the source method which broadcast it 
-                  this.setError($.new(OODK.foundation.Exception, "RemoteProxy request on error"));
-                }
+                      // request has succeeded, process the result
+
+                      // as the php script send a content-type: application/json header
+                      // calling the get method of the response automatically parse the json string 
+                      // and return a js object
+                      var json = xhresponse.get();
+                        
+                      // transmit the result to the source method
+                      rmiRequest.setResult(json.result);
+                    }else{
+
+                      // in case of failure, send the error to rmi
+                      rmiRequest.setError($.new(OODK.foundation.Exception, "RMI request on error"));
+                    }
+
+                    // for optimization, unbind all listener for the request
+                    rmiRequest.done();
+                });
               });
 
-              // RemoteCalculator is declared as a remote proxy using the remoteProxy instance as definition.
+              // instantiate RMI
+              var rmi = $.new(OODK.foundation.util.RMI);
+
+              // instantiate the listener to customize the request
+              var rmil = $.new(_.RMIListener, 'xhRequest.');
+
+              // set the listener to rmi
+              rmi.setListener(rmil);
+              
+
+              // RemoteCalculator is declared as a remote proxy using the rmi instance as definition.
               // Each time the sum or sub method is called, the RemotePoxy send a XHRequest to the php script
               // and transmit back the result to the method
-              $.public().proxy(remoteProxy).class(function RemoteCalculator($, µ, _){
+              $.public().proxy(rmi).class(function RemoteCalculator($, µ, _){
 
                 // remote proxy for the sum calculation of two numbers
                 $.proxy().public('sum');
 
                 // remote proxy for the substraction of two numbers
                 $.proxy().public('sub');
+
+                // a falsy remote proxy throw an UnsupportedOperationException
+                $.proxy().public('onerror');
               });
 
               var a = $.new(this.RemoteCalculator);
 
-              $.log(a.sum(1, 2)); // outputs 3
+              var sum = a.sum(1, 2); // sum is 3
 
-              $.log(a.sub(1, 2)); // outputs -1
+              // as request are sent synchronously we can use the result for further operations
+              $.log(a.sub(sum, 1)); // outputs (3-1)=2
+
+              $.log(a.onerror(1, 2)); // throw an UnsupportedOperationException by the RMI listener
           });
           </pre>
 

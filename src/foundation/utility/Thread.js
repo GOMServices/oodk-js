@@ -23,7 +23,11 @@ OODK('foundation.util', function($, _){
 
 			µ.id = _.self.counter;
 
-			_.self.addThread(this);
+			µ.name = 'Thread-'+µ.id;
+
+			if(!_.self.threadList.hasOwnProperty(µ.id)){
+				_.self.threadList[µ.id] = this;
+			}
 
 			µ.worker = new Worker(file);
 
@@ -56,44 +60,28 @@ OODK('foundation.util', function($, _){
 		});
 
 		$.public(function isAlive(){
-			return ([OODK.foundation.util.Thread.self.RUNNABLE, OODK.foundation.util.Thread.self.WAITING].indexOf(µ.state) !==-1);
+			return (µ.state === OODK.foundation.util.Thread.self.RUNNABLE);
 		});
 
-		$.public(function start(){
-			µ.worker.postMessage({'type': 'thread.initialize', 'id': µ.id, 'name': µ.name});
+		$.public(function start(data){
+			µ.worker.postMessage({'type': 'thread.initialize', 'id': µ.id, 'name': µ.name, 'data': data});
 		});
 
-		$.public(function stop(){
-
-			µ.worker.postMessage({'type': 'thread.terminate'});
+		$.public(function stop(data){
+			µ.worker.postMessage({'type': 'thread.terminate', 'data': data});
 		});
 
-		$.public(function kill(){
+		$.public(function kill(data){
 
 			µ.worker.terminate();
 
 			µ.state = OODK.foundation.util.Thread.self.TERMINATED;
-		});
 
-		$.public(function sleep(millisec){
-			µ.state = OODK.foundation.util.Thread.self.WAITING;
+			var e = µ.factoryEvent('thread.terminate');
 
-			µ.worker.postMessage({'type': 'thread.sleep'});
+			e.setData(data);
 
-			if(OODKObject.is(millisec, Number)){
-
-				var timer = setTimeout(function(){
-					µ.worker.postMessage({'type': 'thread.awake'});
-				}, millisec);
-
-				return timer;
-			}
-		});
-
-		$.public(function awake(){
-			µ.state = OODK.foundation.util.Thread.self.RUNNABLE;
-
-			µ.worker.postMessage({'type': 'thread.awake'});
+			$.trigger(e);
 		});
 
 		$.public(function send(type, data){
@@ -107,56 +95,17 @@ OODK('foundation.util', function($, _){
 
 			if(evt.data.type == 'thread.terminate'){
 
-				µ.state = OODK.foundation.util.Thread.self.RUNNABLE;
-
-				var e = µ.factoryEvent(evt);
-
-				$.trigger(e);
-
-				this.kill();
+				this.kill(evt.data.data);
+				
 			}else if(evt.data.type == 'thread.initialize'){
 
 				µ.state = OODK.foundation.util.Thread.self.RUNNABLE;
 
 				var e = µ.factoryEvent(evt);
 
-				$.trigger(e);
-
-			}else if(evt.data.type == 'thread.sleep'){
-
-				µ.state = OODK.foundation.util.Thread.self.WAITING;
-
-				var e = µ.factoryEvent(evt);
+				e.setType('thread.ready');
 
 				$.trigger(e);
-
-			}else if(evt.data.type == 'thread.awake'){
-
-				µ.state = OODK.foundation.util.Thread.self.RUNNABLE;
-
-				var e = µ.factoryEvent(evt);
-
-				$.trigger(e);
-
-			}else if(evt.data.type == 'thread.requestlock'){
-
-				var e = µ.factoryEvent(evt);
-
-			    e.setData({'lockId': lockId});
-
-				$.trigger(e);
-
-				_.self.addLock(evt.data.lockId, this);
-
-			}else if(evt.data.type == 'onunlock'){
-
-				var e = µ.factoryEvent(evt);
-
-			    e.setData({'lockId': lockId});
-
-				$.trigger(e);
-
-				_.self.removeLock(evt.data.lockId, this);
 
 			}else{
 
@@ -172,13 +121,15 @@ OODK('foundation.util', function($, _){
 
 		$.protected(function factoryEvent(evt){
 
-			var e = $.new(OODK.foundation.util.ThreadEvent, evt.data.type, this);
+			if($.is(evt, String)){
+				var e = $.new(OODK.foundation.util.Event, evt, this);
+			}else{
+				var e = $.new(OODK.foundation.util.Event, evt.data.type, this);
 
-			e.setSrcEvent(evt);
+				e.setSrcEvent(evt);
+			}
 
 			e.sync();
-
-			e.setThread(this);
 
 			return e;
 		});
@@ -191,11 +142,7 @@ OODK('foundation.util', function($, _){
 
 			$.final().public('TERMINATED', 3);
 
-			$.final().public('WAITING', 4);
-
 			$.private('counter', 0);
-
-			$.private('lockList', {});
 
 			$.private('threadList', {});
 
@@ -203,21 +150,18 @@ OODK('foundation.util', function($, _){
 				_.counter++;
 			});
 
-			$.private(function addThread(thread){
-
-				if(!$.instanceOf(thread, OODK.foundation.util.Thread)){
-					$.throw(OODK.foundation.IllegalArgumentException, thread + ' is not an instance of foundation.util.Thread');
-				}
-
-				var key = thread.getId();
-
-				if(!_.threadList.hasOwnProperty(key)){
-					_.threadList[key] = thread;
-				}
-			});
-
+			/**
+			 * get all registered threads
+			 */
 			$.public(function getAllThreads(){
-				return _.threadList;
+
+				var list = [];
+
+				for(var i in _.threadList){
+					list.push(_.threadList[i]);
+				}
+
+				return list;
 			});
 
 			$.public(function getThreadById(threadId){
@@ -269,112 +213,6 @@ OODK('foundation.util', function($, _){
 				OODKObject.forEach(_.threadList, function(thr){
 					thr.send(type, data);
 				});
-			});
-
-			$.private(function lock(lockId, callback){
-
-				if($.envtype() == 'browser'){
-					var thread = env;
-				}else{
-					$.throw(OODK.foundation.IllegalStateException, 'call to OODK.foundation.util.Thread::lock() from invalid context');
-				}
-
-				if(_.addLock(lockId, thread)){
-
-					callback.apply(null, []);
-
-					_.removeLock(lockId, thread);
-					
-				}else{
-
-					_.lockList[lockId].callback = callback;
-				}
-			});
-
-			$.private(function unlock(lockId){
-
-				if($.envtype() == 'browser'){
-					var thread = env;
-				}else{
-					$.throw(OODK.foundation.IllegalStateException, 'call to OODK.foundation.util.Thread::lock() from invalid context');
-				}
-
-				_.removeLock(lockId, thread);
-			});
-
-			$.private(function addLock(lockId, thread){
-
-				if(!_.lockList.hasOwnProperty(lockId)){
-
-					_.lockList[lockId] = {'lockee': thread, 'waiting': []};
-
-					if(OODKClass.instanceOf(thread, OODK.foundation.util.Thread)){
-
-						OODKResource.getProperty(thread, 'worker').postMessage({'type': 'onresponselock', 'result': 1, 'lockId': lockId});
-
-						$.unicast('responselock', thread, 1, lockId);
-					}
-
-					return true;
-					
-				}else{
-
-					if(_.lockList[lockId].lockee !== thread){
-
-						if(_.lockList[lockId].waiting.indexOf(thread) === -1){
-
-							_.lockList[lockId].waiting.push(thread);
-
-							if(OODKClass.instanceOf(thread, OODK.foundation.util.Thread)){
-							
-								OODKResource.getProperty(thread, 'worker').postMessage({'type': 'onresponselock', 'result': 0, 'lockId': lockId});
-							
-								$.unicast('responselock', thread, 0, lockId);
-							}
-						}
-					}
-
-					return false;
-				}
-			});
-
-			$.private(function removeLock(lockId, thread){
-
-				if(_.lockList.hasOwnProperty(lockId)){
-
-					if(_.lockList[lockId].lockee === thread){
-
-						// natural unlocking
-
-						if(_.lockList[lockId].waiting.length>0){
-
-							var nextThread = _.lockList[lockId].waiting.shift();
-
-							_.lockList[lockId].lockee = nextThread;
-
-							if(OODKClass.instanceOf(nextThread, OODK.foundation.util.Thread)){
-								OODKResource.getProperty(nextThread, 'worker').postMessage({'type': 'onresponselock', 'result': 1, 'lockId': lockId});
-							
-								$.unicast('responselock', thread, 1, lockId);
-							}else{
-								_.lockList[lockId].callback.apply(null,[]);
-
-								_.removeLock(lockId, nextThread);
-							}
-						}else{
-							delete _.lockList[lockId];
-						}
-					}else{
-
-						// force unlocking
-
-						var indexOf = _.lockList[lockId].waiting.indexOf(thread);
-
-						if(indexOf > -1){
-							_.lockList[lockId].waiting.splice(indexOf, 1);
-						}
-					}
-				}
 			});
 		});
 	});

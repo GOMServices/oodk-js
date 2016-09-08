@@ -1146,25 +1146,19 @@
 		    			}
 		    		}else if(OODKInstance.isValid(def[1])){ 
 
-		    			if(OODKObject.isFunc(OODK.foundation.util.RemoteProxy) && OODKObject.instanceOf(def[1], OODK.foundation.util.RemoteProxy)){
+		    			if(OODKObject.isFunc(OODK.foundation.util.RMI) && OODKObject.instanceOf(def[1], OODK.foundation.util.RMI)){
 		    				
-		    				def = (function(name, context, remoteProxyCall){
+		    				def = (function(name, context, rmi){
 
 		    					return function(){
 
-		    						remoteProxyCall.setContext(context);
+		    						var rmir = rmi.invoke(context, name, OODKObject.toArray(arguments));
 
-		    						remoteProxyCall.setMethodName(name);
-
-		    						remoteProxyCall.setArguments(OODKObject.toArray(arguments));
-
-		    						remoteProxyCall.send();
-
-		    						if(remoteProxyCall.hasError()){
-		    							OODKSystem.throw(remoteProxyCall.getError());
+		    						if(rmir.hasError()){
+		    							OODKSystem.throw(rmir.getError());
 		    						}
 
-		    						return remoteProxyCall.getResult();
+		    						return rmir.getResult();
 		    					}
 
 		    				})(name, instance, def[1]);

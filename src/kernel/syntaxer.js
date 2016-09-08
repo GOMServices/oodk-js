@@ -15,6 +15,8 @@
 				return OODKSystem.getEnvType();
 			},
 
+			'getClass': OODKInstance.getClass,
+
 			'alias': function alias(target, name){
 
 				var def;
