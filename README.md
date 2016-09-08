@@ -1,4 +1,4 @@
-﻿[OODK](http://www.oodkjs.org/) — Oriented-Object Development Kit for JavaScript
+﻿[OODK-JS](http://www.oodkjs.org/) — Oriented-Object Development Kit for JavaScript
 ==================================================
 
 Concept
@@ -6,7 +6,7 @@ Concept
 
 <p>OODK-JS, <b>O</b>riented-<b>O</b>bject <b>D</b>evelopment <b>K</b>it for <b>J</b>ava<b>S</b>cript is a all-in-one JavaScript library, that enriched JavaScript with all of the OOP concepts: <b>encapsulation</b>, <b>inheritance</b>, <b>overriding</b>, <b>polymorphism</b>, <b>interface</b>, <b>abstraction</b>, <b>namespace</b>.</p>
 
-<p>Additional API are also available working around OOP concepts: conversion, cloning, serialization, iteration, comparison, sorting, debugger, reflection, event, typing</p>
+<p>Additional API are also available working around OOP concepts: conversion, cloning, serialization, iteration, comparison, sorting, debugger, reflection, event, typing, threading, RMI...</p>
 
 <p>The purpose of OODK-JS is to bring to JavaScript additional pseudo-keywords to create classes, interfaces and namespaces without to install a separate compiler or learn a new language.</p>
 
@@ -200,7 +200,9 @@ echo "&lt;br/&gt;value of constant SUCCESS is " . ClassA::SUCCESS;
 Environments in which to use OODK
 --------------------------------------
 
-OODK is only supported, for now, on browser side (Node Js integration is on the roadmap of futur releases). 
+OODK is supported on browser side only (in the context of a web page page or a webworker). 
+
+NodeJS integration is on the roadmap of the next release.
 
 
 Doc
