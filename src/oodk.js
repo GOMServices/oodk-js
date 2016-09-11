@@ -1720,7 +1720,10 @@ if(typeof window === 'undefined'){
 		OODKImporter.addDependency('{oodk}/foundation/utility/XHRequest', '{oodk}/foundation/utility/XHResponse');
 		OODKImporter.addDependency('{oodk}/foundation/utility/XHRequest', '{oodk}/foundation/utility/Url');
 		OODKImporter.addDependency('{oodk}/foundation/utility/XHRequest', '{oodk}/api/Event');
+		OODKImporter.addDependency('{oodk}/foundation/utility/XHRequest', '{oodk}/api/Cloning');
 		OODKImporter.addDependency('{oodk}/foundation/utility/XHRequest', '{oodk}/foundation/utility/XHRequestEvent');
+
+		OODKImporter.addDependency('{oodk}/foundation/utility/Url', '{oodk}/api/Cloning');
 
 		OODKPackager.add('util.ajax', [
 			'{oodk}/foundation/utility/Url',

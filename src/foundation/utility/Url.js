@@ -1,7 +1,7 @@
 
 OODK('foundation.util', function($, _){
 	
-	$.public().class(function Url($, µ, _){
+	$.public().implements(OODK.foundation.Cloneable).class(function Url($, µ, _){
 
 		$.protected('protocol', "");
 

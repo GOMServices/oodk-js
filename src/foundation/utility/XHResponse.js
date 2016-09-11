@@ -11,19 +11,13 @@ OODK('foundation.util', function($, _){
 
 		$.protected('responseText');
 
-		$.protected('contentType');
+		$.public(function __initialize(xmlhttp){
 
-		$.public(function __initialize(request){
-
-			µ.rawRequest = OODKResource.getProperty(request, 'xmlhttp');
-
-			µ.request = request;
+			µ.rawRequest = xmlhttp;
 
 			µ.status = µ.rawRequest.status;
 
 			µ.responseText = µ.rawRequest.responseText;
-
-			µ.contentType = µ.rawRequest.getResponseHeader('Content-type');
 		});
 
 		$.public(function hasSucceeded(){
@@ -59,20 +53,12 @@ OODK('foundation.util', function($, _){
 			return µ.status;
 		});
 
-		$.public(function getCustomData(key){
-			return µ.data[key];
-		});
-
-		$.public(function getPost(){
-			return µ.post;
-		});
-
-		$.public(function getPostFragment(key){
-			return µ.post[key];
-		});
-
 		$.public(function getContentType(){
-			return µ.contentType;
+			return this.getHeader('Content-type');
+		});
+
+		$.public(function getHeader(type){
+			return µ.rawRequest.getResponseHeader(type);
 		});
 	});
 });

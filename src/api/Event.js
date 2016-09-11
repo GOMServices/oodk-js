@@ -89,7 +89,7 @@
 
 			evt.consume();
 
-	       	type = evt.getType();
+	       	var type = evt.getType();
 
 			if(this.callbackList.hasOwnProperty(type)){
 

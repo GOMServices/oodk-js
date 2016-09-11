@@ -1,7 +1,7 @@
 
 OODK('foundation.util', function($, _){
 	
-	$.public().implements(OODK.foundation.EventBroadcaster).class(function XHRequest($, µ, _){
+	$.public().implements(OODK.foundation.EventBroadcaster, OODK.foundation.Cloneable).class(function XHRequest($, µ, _){
 
 		$.protected('xmlhttp');
 
@@ -15,15 +15,27 @@ OODK('foundation.util', function($, _){
 
 		$.protected('post', "");
 
-		$.protected('callbacks', {});
-
-		$.protected('responses', []);
-
-		$.protected('contentType');
+		$.protected('headers', {});
 
 		$.protected('state', 0);
 
 		$.public(function __initialize(url){
+
+			µ.initializeXmlHttp();
+
+			if($.isset(url)){
+				this.setUrl(url);
+			}
+		});
+
+		$.protected(function __clone(cloner){
+
+			this.setUrl(cloner.clone(µ.url));
+
+			µ.initializeXmlHttp();
+		});
+
+		$.protected(function initializeXmlHttp(){
 
 			if(window.XMLHttpRequest){
 				µ.xmlhttp = new XMLHttpRequest();
@@ -41,9 +53,7 @@ OODK('foundation.util', function($, _){
 
 				if(this.readyState == 4){
 
-					var response = $.new(OODK.foundation.util.XHResponse, self);
-
-					µ.responses.push(response);
+					var response = $.new(OODK.foundation.util.XHResponse, this);
 
 					if(response.hasSucceeded()){
 						var evt = self.factoryEvent('xhRequest.succeeded');
@@ -66,10 +76,6 @@ OODK('foundation.util', function($, _){
 					$.trigger(evt);
 				}
 			}
-
-			if($.isset(url)){
-				this.setUrl(url);
-			}
 		});
 
 		$.public(function __dispatchEvent(evt){});
@@ -79,9 +85,12 @@ OODK('foundation.util', function($, _){
 		$.public(function __eventConsumed(evt){
 
 			if(evt.getType() == 'xhRequest.send'){
-
 				µ.doSend(evt);
 			}
+		});
+
+		$.public(function isProceeded(){
+			return (µ.state == 1);
 		});
 
 		$.public(function isUpdateable(){
@@ -90,9 +99,9 @@ OODK('foundation.util', function($, _){
 
 		$.protected(function testUpdateable(){
 
-			if(!this.isUpdateable()){
+			/*if(!this.isUpdateable()){
 				$.throw(OODK.foundation.IllegalStateException, 'Cannot modify the XHRequest - request has already been sent');
-			}
+			}*/
 		});
 
 		$.public(function setUrl(url){
@@ -266,23 +275,22 @@ OODK('foundation.util', function($, _){
 		});
 
 		$.public(function setContentType(type){
-
-			µ.testUpdateable();
-
-			µ.contentType = type;
-
-			this.setRequestHeader("Content-type", type);
+			this.setHeader("Content-type", type);
 		});
 
 		$.public(function getContentType(){
-			return µ.contentType;
+			return µ.headers["Content-type"];
 		});
 
-		$.public(function setRequestHeader(key, value){
+		$.public(function getHeader(type){
+			return µ.headers[type];
+		});
+
+		$.public(function setHeader(key, value){
 
 			µ.testUpdateable();
 
-			µ.xmlhttp.setRequestHeader(key, value);
+			µ.headers[key] = value;
 		});
 
 		$.public(function factoryEvent(evtType){
@@ -295,10 +303,6 @@ OODK('foundation.util', function($, _){
 		});
 
 		$.public(function send(){
-
-			/*if(typeof µ.callbacks['beforeSend'] == 'function'){
-				µ.callbacks['beforeSend'].apply(this, [this]);
-			}*/
 
 			var evt = this.factoryEvent('xhRequest.send');
 
@@ -317,26 +321,21 @@ OODK('foundation.util', function($, _){
 
 				µ.method = 'POST';
 
-				µ.xmlhttp.open(µ.method, µ.url, µ.asynchrone);
+				this.setContentType('application/x-www-form-urlencoded');
+			}
 
-				µ.contentType = 'application/x-www-form-urlencoded';
+			µ.xmlhttp.open(µ.method, µ.url, µ.asynchrone);
 
-				µ.xmlhttp.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+			OODKObject.forEach(µ.headers, function(v, k, i){
 
+				µ.xmlhttp.setRequestHeader(k, v);
+			});
+
+			if(!OODKObject.isEmpty(µ.post)){
 				µ.xmlhttp.send(µ.post);
 			}else{
-				µ.xmlhttp.open(µ.method, µ.url, µ.asynchrone);
-
 				µ.xmlhttp.send(null);
 			}
-		});
-
-		$.public(function beforeSend(callback){
-			µ.callbacks['beforeSend'] = callback;
-		});
-
-		$.public(function onComplete(callback){
-			µ.callbacks['onComplete'] = callback;
 		});
 	});
 });
